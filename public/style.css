@@ -71,7 +71,7 @@ h3 {
     transform: translateY(-2px);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 960px) {
     h1 {
         font-size: 30px;
     }
