@@ -41,7 +41,7 @@ h3 {
     width: 100vw;
     height: auto;
     box-sizing: border-box;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)), url(images/header-bg.png);
+    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.603)), url(images/header-bg.png);
     background-size: cover;
     background-position: center;
     color: white;
@@ -52,7 +52,6 @@ h3 {
     text-align: center;
     padding: 50px;
 }
-
 
 .btn {
     background-color: var(--color-light);
@@ -82,5 +81,90 @@ h3 {
 
     h3 {
         font-size: 18px;
+    }
+}
+
+.footer-container {
+    width: 100vw;
+    height: auto;
+    box-sizing: border-box;
+    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.603)), url(images/footer-bg.png);
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px;
+}
+
+.footer-links {
+    color: white;
+    text-decoration: none;
+}
+
+.home-about-container {
+    display: flex;
+    padding: 40px;
+    justify-content: center;
+}
+
+.home-about-container > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 60px;
+    max-width: 900px;
+    width: 100%;
+}
+
+.home-about-container h1 {
+    font-family: "Caveat Brush";
+    font-size: 40px;
+}
+
+.willow-circle {
+    max-width: 400px;
+}
+
+.home-about-texts-container {
+    max-width: 400px;
+    text-align: left;
+}
+
+.about-sub-heading {
+    margin-bottom: 0px;
+}
+
+.home-about-text {
+    margin-bottom: 40px;
+}
+
+.learn-more-btn {
+    background-color: var(--color-dark);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .home-about-container {
+        padding: 20px;
+    }
+
+    .home-about-container>div {
+        flex-direction: column;
+        gap: 30px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .home-about-texts-container {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .willow-circle {
+        max-width: 250px;
     }
 }
