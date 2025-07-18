@@ -55,7 +55,7 @@ h3 {
 
 
 .btn {
-    background-color: var(--color-main);
+    background-color: var(--color-light);
     color: var(--color-darkest);
     font-weight: 600;
     border: none;
@@ -64,6 +64,11 @@ h3 {
     border-radius: 15px;
     cursor: pointer;
     text-decoration: none;
+}
+
+.btn:hover {
+    background-color: var(--color-main);
+    transform: translateY(-2px);
 }
 
 @media (max-width: 800px) {
