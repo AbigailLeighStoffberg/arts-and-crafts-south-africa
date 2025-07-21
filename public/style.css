@@ -9,7 +9,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--color-lightest);
+    background-color: white;
     color: var(--color-darkest);
     font-family: 'Poppins', sans-serif;
     line-height: 1.5;
@@ -41,10 +41,10 @@ h3 {
     width: 100vw;
     height: auto;
     box-sizing: border-box;
-    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.603)), url(images/header-bg.png);
+    background-image: url(images/header-bright.png);
     background-size: cover;
     background-position: center;
-    color: white;
+    color: var(--color-darkest);;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -54,8 +54,8 @@ h3 {
 }
 
 .btn {
-    background-color: var(--color-light);
-    color: var(--color-darkest);
+    background-color: var(--color-dark);
+    color: white;
     font-weight: 600;
     border: none;
     padding: 16px 32px;
@@ -88,7 +88,7 @@ h3 {
     width: 100vw;
     height: auto;
     box-sizing: border-box;
-    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.603)), url(images/footer-bg.png);
+    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.603)), url(images/footer-brigt.png);
     background-size: cover;
     background-position: center;
     color: white;
