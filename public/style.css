@@ -16,7 +16,7 @@ body {
 }
 
 h1 {
-    font-family: "Bree Serif", sans-serif;
+    font-family: "Bree Serif", serif;
     font-size: 40px;
     margin: 0;
 }
@@ -24,7 +24,7 @@ h1 {
 h2 {
     font-size: 30px;
     font-weight: 400;
-    margin: 10px;
+    margin: 10px 0;
 }
 
 h3 {
@@ -39,18 +39,17 @@ h3 {
 
 .header-container {
     width: 100vw;
-    height: auto;
+    padding: 40px 20px;
     box-sizing: border-box;
     background-image: url(images/header-bright.png);
     background-size: cover;
     background-position: center;
-    color: var(--color-darkest);;
+    color: var(--color-darkest);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 50px;
 }
 
 .btn {
@@ -59,10 +58,11 @@ h3 {
     font-weight: 600;
     border: none;
     padding: 16px 32px;
-    margin-top: 30px;
     border-radius: 15px;
     cursor: pointer;
     text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn:hover {
@@ -70,63 +70,36 @@ h3 {
     transform: translateY(-2px);
 }
 
-@media (max-width: 960px) {
-    h1 {
-        font-size: 30px;
-    }
-
-    h2 {
-        font-size: 20px;
-    }
-
-    h3 {
-        font-size: 18px;
-    }
-}
-
-.footer-container {
-    width: 100vw;
-    height: auto;
-    box-sizing: border-box;
-    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.603)), url(images/footer-brigt.png);
-    background-size: cover;
-    background-position: center;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 50px;
-}
-
-.footer-links {
-    color: white;
-    text-decoration: none;
+.header-btn {
+    margin-top: 30px;
 }
 
 .home-about-container {
     display: flex;
-    padding: 40px;
+    padding: 40px 20px;
     justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
 }
 
-.home-about-container > div {
+.home-about-container>div {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 60px;
-    max-width: 900px;
-    width: 100%;
+    width: 80%;
 }
 
 .home-about-container h1 {
-    font-family: "Caveat Brush";
+    font-family: "Caveat Brush", cursive;
     font-size: 40px;
 }
 
 .willow-circle {
     max-width: 400px;
+    width: 100%;
+    height: auto;
 }
 
 .home-about-texts-container {
@@ -147,24 +120,189 @@ h3 {
     color: white;
 }
 
-@media (max-width: 768px) {
+.categories-container {
+    background-color: var(--color-lightest);
+}
+
+
+.carousel-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 80%;
+    gap: 15px;
+}
+
+.categories-heading {
+    font-weight: 400;
+    padding: 40px;
+    font-size: 33px;
+    text-align: center;
+}
+
+.carousel-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.chevron {
+    font-size: 30px;
+    color: var(--color-dark);
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.carousel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: 10px;
+}
+
+.product-card {
+    background-color: white;
+    text-align: center;
+    border-radius: 20px;
+    padding-bottom: 10px;
+    max-width: 250px;
+    box-sizing: border-box;
+}
+
+.product-image {
+    max-width: 90%;
+    border-radius: 20px;
+    padding: 10px;
+    height: auto;
+}
+
+.chevron-controls {
+    display: none;
+}
+
+.all-products-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.all-products-btn {
+    margin: 30px;
+}
+
+.footer-container {
+    width: 100vw;
+    box-sizing: border-box;
+    background-image: linear-gradient(rgba(38, 0, 59, 0.2), rgba(37, 0, 51, 0.6)), url(images/footer-brigt.png);
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.footer-links {
+    color: white;
+    text-decoration: none;
+    word-break: break-word;
+}
+
+@media (max-width: 960px) {
+    h1 {
+        font-size: 30px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 16px;
+    }
+
     .home-about-container {
-        padding: 20px;
+        padding: 20px 10px;
+        max-width: 600px;
+        margin-bottom: 20px;
     }
 
     .home-about-container>div {
-        flex-direction: column;
         gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .home-about-container>div {
+        flex-direction: column;
         align-items: center;
         text-align: center;
     }
 
     .home-about-texts-container {
         max-width: 100%;
-        text-align: center;
     }
 
     .willow-circle {
         max-width: 250px;
+    }
+
+    .carousel-wrapper .chevron {
+        display: none;
+    }
+
+    .chevron-controls {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .carousel-grid {
+        grid-template-columns: 1fr;
+        max-width: 300px;
+        gap: 15px;
+    }
+
+    .willow-circle {
+        max-width: 180px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+
+    .header-container {
+        padding: 40px 10px;
+    }
+
+    .footer-container {
+        padding: 30px 10px;
     }
 }

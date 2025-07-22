@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
+
   <link
     href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat+Brush&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
     rel="stylesheet">
@@ -15,12 +16,13 @@
   <link rel="stylesheet" href="style.css">
   <title>Document</title>
 </head>
+
 <body>
   <div class="header-container">
     <h2>Welcome to</h2>
     <h1>Arts and Crafts South Africa</h1>
     <h3>Lovingly crafted local art</h3>
-    <a href="shop.html" class="btn">Shop Now</a>
+    <a href="shop.html" class="header-btn btn">Shop Now</a>
   </div>
 
   <section class="home-about-container">
@@ -29,27 +31,65 @@
       <div class="home-about-texts-container">
         <p class="about-sub-heading">Who we are</p>
         <h1>About us</h1>
-        <p class="home-about-text">Arts and Crafts South Africa is a home for unique, handcrafted work by local artists and crafters. From paintings and
-        pottery to jewelry, crochet, homeware, and heartfelt gifts - every piece tells a story.
-        
-        We’re here to celebrate and support local talent by sharing their craft with those who appreciate the weird, the warm,
-        and the wonderfully made.</p>
+        <p class="home-about-text">Arts and Crafts South Africa is a home for unique, handcrafted work by local artists
+          and crafters. From paintings and
+          pottery to jewelry, crochet, homeware, and heartfelt gifts - every piece tells a story.
+
+          We’re here to celebrate and support local talent by sharing their craft with those who appreciate the weird,
+          the warm,
+          and the wonderfully made.</p>
         <a href="shop.html" class="btn learn-more-btn">Learn more</a>
       </div>
     </div>
   </section>
 
-  <sectio class="categories-container">
-    <h1>Explore by Category</h1>
-    <i class="fa-solid fa-circle-chevron-left"></i>
-    <div class="products">
-      <div class="product">
+  <section class="categories-container">
+    <h1 class="categories-heading">Explore by Category</h1>
+    <div class="carousel-wrapper">
+      <i class="fa-solid fa-circle-chevron-left chevron left" id="prevCategory"></i>
+      <div class="carousel-grid">
+        <div class="product-card">
+          <img class="product-image" src="images/home.png">
+          <p class="category-name">Home & Garden</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/jewelry.png">
+          <p class="category-name">Jewelry</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/paintings.png">
+          <p class="category-name">Art & Prints</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/wooden.png">
+          <p class="category-name">Handcrafted & Wooden</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/pets.png">
+          <p class="category-name">Pets</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/accessories.png">
+          <p class="category-name">Apparel & Accessories</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/kids.png">
+          <p class="category-name">For kids</p>
+        </div>
+        <div class="product-card">
+          <img class="product-image" src="images/coming-soon.png">
+          <p class="category-name">Digital Works</p>
+        </div>
       </div>
-      <div class="product">product 1</div>
-      <div class="product">product 1</div>
-      <div class="product">product 1</div>
+      <i class="fa-solid fa-circle-chevron-right chevron right" id="nextCategory"></i>
     </div>
-    <i class="fa-solid fa-circle-chevron-right"></i>
+    <div class="chevron-controls">
+      <i class="fa-solid fa-circle-chevron-left chevron left" id="prevCategorySmall"></i>
+      <i class="fa-solid fa-circle-chevron-right chevron right" id="nextCategorySmall"></i>
+    </div>
+    <div class="all-products-button-container">
+      <a href="shop.html" class="btn all-products-btn">All Products</a>
+    </div>
   </section>
 
   <section class="art-classes-container">
@@ -57,8 +97,6 @@
 
   <section class="join-the-community-container">
   </section>
-
-  
 
   <footer>
     <div class="footer-container">
@@ -68,7 +106,7 @@
     </div>
   </footer>
 
-  
   <script src="scripts.js"></script>
 </body>
+
 </html>
