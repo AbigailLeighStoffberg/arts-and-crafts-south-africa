@@ -108,11 +108,18 @@ h3 {
     text-align: left;
 }
 
+.about-heading {
+    font-family: "Bree Serif", serif;
+    font-size: 40px;
+    margin: 0;
+    line-height: 1;
+}
 .about-sub-heading {
     margin-bottom: 0px;
 }
 
 .home-about-text {
+    margin-top: 40px;
     margin-bottom: 40px;
 }
 
@@ -200,6 +207,75 @@ h3 {
 
 .all-products-btn {
     margin: 30px;
+}
+
+.art-classes-container {
+    width: 100vw;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    color: var(--color-darkest);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.art-classes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border: 2px solid #3BC5D7;
+    border-radius: 20px;
+    max-width: 1000px;
+    padding: 20px;
+}
+
+.classes-grid-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.art-classes-heading {
+    font-family: "Bree Serif", serif;
+    font-size: 50px;
+    margin: 0;
+    line-height: 1;
+}
+
+.art-classes-short-description {
+    max-width: 500px;
+    padding: 20px;
+}
+
+.classes-image,
+.map-embed {
+    max-width: 500px;
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+.art-classes-details {
+    padding: 20px;
+}
+
+.classes-map-and-button-small {
+    display: none;
+}
+
+.where-and-when-heading {
+    font-weight: 500;
+
+}
+
+.book-now-btn {
+    margin-top: 10px;
+    background-color: #3BC5D7;
+    color: var(--color-darkest);
 }
 
 .footer-container {
@@ -306,5 +382,31 @@ h3 {
 
     .footer-container {
         padding: 30px 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .art-classes-grid {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .classes-grid-section {
+        text-align: center;
+        padding: 10px 0;
+    }
+
+    .classes-image,
+    .map-embed {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .art-classes-heading {
+        font-size: 36px;
+    }
+
+    .art-classes-short-description {
+        padding: 10px;
     }
 }
