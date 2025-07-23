@@ -4,6 +4,7 @@
     --color-main: #927fbf;
     --color-dark: #4f3b78;
     --color-darkest: #2f1b41;
+    --highlight-color: #3BC5D7;
 }
 
 body {
@@ -274,7 +275,7 @@ h3 {
 
 .book-now-btn {
     margin-top: 10px;
-    background-color: #3BC5D7;
+    background-color: var(--highlight-color);
     color: var(--color-darkest);
 }
 
@@ -408,5 +409,45 @@ h3 {
 
     .art-classes-short-description {
         padding: 10px;
+    }
+
+    .book-now-btn,
+    .classes-grid-section iframe.map-embed:not(.classes-map-and-button-small iframe) {
+        display: none;
+    }
+
+    .classes-map-and-button-small {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .classes-map-and-button-small iframe {
+        width: 100%;
+        max-width: 500px;
+        height: 300px;
+        border-radius: 20px;
+    }
+
+    .book-now-btn-small {
+        margin-top: 10px;
+        background-color: var(--highlight-color);
+        color: var(--color-darkest);
+        font-weight: 600;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 15px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    
+    .book-now-btn-small:hover {
+        background-color: var(--color-dark);
+        color: white;
+        transform: translateY(-2px);
     }
 }
