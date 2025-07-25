@@ -1,0 +1,284 @@
+/* General Body and Container Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #5b9087; /* A pleasant green/blue */
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+section {
+    background-color: #ffffff;
+    margin: 20px auto;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    max-width: 800px; /* Limit width for better readability */
+}
+
+h2 {
+    color: #5b9087;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #5b9087;
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: #5b9087;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+
+/* Input and Textarea Styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="number"], /* Added for number inputs in products */
+textarea,
+select { /* Added select for product artist dropdown */
+    width: calc(100% - 22px); /* Account for padding and border */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box; /* Include padding/border in width */
+    font-size: 1em; /* Ensure consistent font size for all inputs */
+}
+
+/* Fix for Placeholder Size */
+input::placeholder,
+textarea::placeholder {
+    font-size: 1em;
+    color: #aaa;
+}
+
+/* Textarea specific styling */
+textarea {
+    min-height: 100px; /* Give it more room */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+/* Select specific styling */
+select {
+    background-color: #fff; /* Ensure it looks clean */
+    cursor: pointer;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    border-color: #5b9087;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(91, 144, 135, 0.2);
+}
+
+
+/* Buttons */
+button {
+    background-color: #5b9087;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #4a776e;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Specific button styles (Edit/Delete) */
+.edit-artist-btn, .edit-product-btn {
+    background-color: #ffc107; /* Warning yellow */
+    color: #333;
+}
+.edit-artist-btn:hover, .edit-product-btn:hover {
+    background-color: #e0a800;
+}
+
+.delete-artist-btn, .delete-product-btn {
+    background-color: #dc3545; /* Danger red */
+}
+.delete-artist-btn:hover, .delete-product-btn:hover {
+    background-color: #c82333;
+}
+
+
+/* Logout Button Styling */
+#logout-btn {
+    background-color: #5b9087;
+}
+
+#logout-btn:hover {
+    background-color: #4a776e;
+}
+
+/* Dashboard Footer for Centering Logout Button */
+.dashboard-footer {
+    text-align: center; /* Fallback for older browsers */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    margin-top: 20px; /* Add some space above the button */
+    padding-bottom: 20px; /* Space at the bottom of the section */
+}
+
+/* Artist Form Buttons for Centering */
+.artist-form-buttons {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px; /* Space above the buttons */
+    margin-bottom: 15px; /* Space below the buttons, before messages */
+}
+
+/* Product Form Buttons for Centering */
+.product-form-buttons {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px; /* Space above the buttons */
+    margin-bottom: 15px; /* Space below the buttons, before messages */
+}
+
+
+/* List Styling (for existing artists and products) */
+#artists-list ul,
+#products-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+#artists-list li,
+#products-list li {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack content vertically */
+}
+
+#artists-list li strong,
+#products-list li strong {
+    color: #5b9087;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+#artists-list li img,
+#products-list li img {
+    max-width: 100px;
+    height: auto;
+    border-radius: 5px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+}
+
+/* Flexbox for button group on list items (Edit/Delete buttons) */
+#artists-list li > div,
+#products-list li > div {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+
+/* Navigation Buttons */
+nav {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+nav button {
+    background-color: #eee;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+nav button.active {
+    background-color: #5b9087;
+    color: white;
+    border-color: #5b9087;
+}
+
+nav button:hover:not(.active) {
+    background-color: #e0e0e0;
+}
+
+/* Messages */
+p#login-error,
+p#submit-error,
+p#product-submit-error { /* Added for product error messages */
+    color: #dc3545;
+    margin-top: 10px;
+}
+
+p#submit-success,
+p#product-submit-success { /* Added for product success messages */
+    color: #28a745;
+    margin-top: 10px;
+}
+
+/* Current Image Display (for both artist and product forms) */
+#current-artist-image,
+#current-product-image { /* Added for product image display */
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+#current-artist-image img,
+#current-product-image img { /* Added for product image display */
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+#current-artist-image button,
+#current-product-image button { /* Added for product image clear button */
+    background-color: #ffc107; /* Warning yellow */
+    color: #333;
+    padding: 5px 10px;
+    margin-left: 10px;
+    font-size: 0.8em;
+}
+
+#current-artist-image button:hover,
+#current-product-image button:hover { /* Added for product image clear button */
+    background-color: #e0a800;
+}

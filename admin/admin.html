@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - Arts & Crafts</title>
+    <link rel="stylesheet" href="admin.css" />
+</head>
+
+<body>
+    <header>
+        <h1>🌼Candice's Dashboard🐋</h1>
+    </header>
+
+    <section id="login-section">
+        <h2>Admin Login</h2>
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button id="login-btn">Log In</button>
+        <p id="login-error" style="color:red;"></p>
+    </section>
+
+    <section id="dashboard-section" style="display:none;">
+        <nav>
+            <button data-section="artists" class="active">Artists🎨</button>
+            <button data-section="products">Products🖼️</button>
+            <button data-section="orders">Orders🛒</button>
+            <button data-section="payments">Payments💳</button>
+        </nav>
+
+        <main>
+            <section id="artists" class="admin-section">
+                <h2 id="artist-form-title">Add Artist</h2>
+                <input type="text" id="artist-name" placeholder="Artist Name" />
+                <input type="email" id="artist-email" placeholder="Artist Email" />
+                <input type="text" id="artist-phone" placeholder="Phone" />
+                <input type="text" id="artist-city" placeholder="City" />
+                <input type="text" id="artist-country" placeholder="Country" />
+                <textarea id="artist-bio" placeholder="Bio"></textarea>
+
+                <input type="url" id="artist-facebook-link" placeholder="Facebook Profile/Page Link"
+                    style="margin-top: 10px;" />
+                <input type="url" id="artist-instagram-link" placeholder="Instagram Profile Link" />
+                <input type="url" id="artist-twitter-link" placeholder="Twitter Profile Link" />
+
+                <label style="margin-top: 10px; display: block;">
+                    <input type="checkbox" id="artist-shipping" /> Shipping handled by artist
+                </label>
+                <div id="current-artist-image" style="margin-top: 5px;"></div>
+                <input type="file" id="artist-image" accept="image/*" />
+
+                <div class="artist-form-buttons">
+                    <button id="add-artist-btn">Add Artist</button>
+                    <button id="cancel-edit-btn" style="display:none;">Cancel Edit</button>
+                </div>
+                <p id="submit-success" style="color:green;"></p>
+                <p id="submit-error" style="color:red;"></p>
+
+                <h3>Existing Artists</h3>
+                <div id="artists-list">Loading...</div>
+            </section>
+
+            <section id="products" class="admin-section" style="display:none;">
+                <h2 id="product-form-title">Add Product</h2>
+                <input type="text" id="product-name" placeholder="Product Name" />
+                <textarea id="product-description" placeholder="Product Description"></textarea>
+                <input type="text" id="product-category" placeholder="Category (e.g., Paintings, Ceramics)" />
+
+                <label for="product-artist-id"
+                    style="display:block; margin-top:10px; margin-bottom: 5px;">Artist:</label>
+                <select id="product-artist-id">
+                    <option value="">-- Select an Artist --</option>
+                </select>
+
+                <input type="number" id="product-price-usd" placeholder="Price (USD)" step="0.01" min="0" />
+                <input type="number" id="product-price-zar" placeholder="Price (ZAR)" step="0.01" min="0" />
+                <input type="text" id="product-sku" placeholder="SKU (e.g., ART-001-VASE)" />
+                <input type="number" id="product-stock" placeholder="Stock Quantity" min="0" />
+
+                <div style="margin-top: 15px;">
+                    <label for="product-main-image" style="display:block; margin-bottom: 5px;">Main Product
+                        Image:</label>
+                    <div id="current-product-main-image" class="current-image-display"></div>
+                    <input type="file" id="product-main-image" accept="image/*" />
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label for="product-thumbnail-image" style="display:block; margin-bottom: 5px;">Product Thumbnail
+                        Image (for listings):</label>
+                    <div id="current-product-thumbnail-image" class="current-image-display"></div>
+                    <input type="file" id="product-thumbnail-image" accept="image/*" />
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label for="product-additional-images" style="display:block; margin-bottom: 5px;">Additional Product
+                        Images (multiple allowed):</label>
+                    <div id="current-product-additional-images" class="current-image-display"></div>
+                    <input type="file" id="product-additional-images" accept="image/*" multiple />
+                </div>
+                <div class="product-form-buttons">
+                    <button id="add-product-btn">Add Product</button>
+                    <button id="cancel-edit-product-btn" style="display:none;">Cancel Edit</button>
+                </div>
+                <p id="product-submit-success" style="color:green;"></p>
+                <p id="product-submit-error" style="color:red;"></p>
+
+                <h3>Existing Products</h3>
+                <div id="products-list">Loading...</div>
+            </section>
+            <section id="orders" class="admin-section" style="display:none;">
+                <h2>View Orders</h2>
+                <p>Coming soon...</p>
+            </section>
+
+            <section id="payments" class="admin-section" style="display:none;">
+                <h2>Track Payments</h2>
+                <p>Coming soon...</p>
+            </section>
+        </main>
+
+        <div class="dashboard-footer">
+            <button id="logout-btn">Logout</button>
+        </div>
+    </section>
+
+    <script type="module" src="scripts/adminMain.js"></script>
+</body>
+
+</html>
