@@ -50,3 +50,25 @@ export function clearProductForm() {
   productSubmitSuccessMsg.textContent = "";
   productSubmitErrorMsg.textContent = "";
 }
+
+import { getArtists } from "../data/artists.js";
+
+export async function populateArtistDropdown() {
+  productArtistIdSelect.innerHTML = "";
+
+  try {
+    const artists = await getArtists();
+
+    if (!artists.length) {
+      productArtistIdSelect.innerHTML = `<option disabled>No artists available</option>`;
+      return;
+    }
+
+    productArtistIdSelect.innerHTML = artists
+      .map(artist => `<option value="${artist.id}">${artist.name}</option>`)
+      .join("");
+  } catch (error) {
+    console.error("Failed to populate artist dropdown:", error);
+    productArtistIdSelect.innerHTML = `<option disabled>Error loading artists</option>`;
+  }
+}

@@ -1,4 +1,3 @@
-// scripts/listeners/productListeners.js
 import {
   productNameInput,
   productDescriptionInput,
@@ -23,6 +22,7 @@ import {
 
 import { addProduct, getProducts } from "../firebase/firestore.js";
 import { uploadImage } from "../firebase/storage.js";
+import { populateArtistDropdown } from "../ui/productForm.js"; // ✅ ADDED
 
 function clearProductForm() {
   productNameInput.value = "";
@@ -61,6 +61,8 @@ async function loadAndRenderProducts() {
 }
 
 export function initProductListeners() {
+  populateArtistDropdown(); // ✅ POPULATE ARTIST DROPDOWN
+
   addProductBtn.addEventListener("click", async () => {
     productSubmitSuccessMsg.textContent = "";
     productSubmitErrorMsg.textContent = "";
