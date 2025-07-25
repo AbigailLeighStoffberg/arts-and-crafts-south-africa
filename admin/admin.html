@@ -23,10 +23,10 @@
 
     <section id="dashboard-section" style="display:none;">
         <nav>
-            <button data-section="artists" class="active">Artists🎨</button>
-            <button data-section="products">Products🖼️</button>
-            <button data-section="orders">Orders🛒</button>
-            <button data-section="payments">Payments💳</button>
+            <button onclick="showSection('artists')" class="active">Artists🎨</button>
+            <button onclick="showSection('products')">Products🖼️</button>
+            <button onclick="showSection('orders')">Orders🛒</button>
+            <button onclick="showSection('payments')">Payments💳</button>
         </nav>
 
         <main>
@@ -124,7 +124,7 @@
         </div>
     </section>
 
-    <script type="module" src="scripts/adminMain.js"></script>
+    <script type="module" src="admin.js"></script>
 </body>
 
 </html>
