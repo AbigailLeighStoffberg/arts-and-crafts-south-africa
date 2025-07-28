@@ -147,6 +147,16 @@ h3 {
     background-color: var(--color-lightest);
 }
 
+.all-products-container {
+    background-color: var(--color-lightest);
+}
+
+.products-heading {
+    font-weight: 400;
+    padding: 40px;
+    font-size: 33px;
+    text-align: center;
+}
 
 .carousel-grid {
     grid-template-columns: repeat(2, 1fr);
