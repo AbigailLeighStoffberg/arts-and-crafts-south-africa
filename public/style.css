@@ -147,17 +147,6 @@ h3 {
     background-color: var(--color-lightest);
 }
 
-.all-products-container {
-    background-color: var(--color-lightest);
-}
-
-.products-heading {
-    font-weight: 400;
-    padding: 40px;
-    font-size: 33px;
-    text-align: center;
-}
-
 .carousel-grid {
     grid-template-columns: repeat(2, 1fr);
     max-width: 80%;
@@ -377,8 +366,106 @@ h3 {
 
 .footer-links {
     color: white;
+    font-size: 24px;
     text-decoration: none;
     word-break: break-word;
+}
+
+/* Products Page */
+
+.products-heading {
+    font-weight: 500;
+    padding-top: 40px;
+    font-size: 33px;
+    text-align: center;
+}
+
+.products-sub-heading {
+    margin-bottom: 50px;
+    font-weight: 300;
+    font-size: 18px;
+    text-align: center;
+}
+
+.all-products-container {
+    background-color: var(--color-lightest);
+    padding: 40px;
+}
+
+.products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 80%;
+    gap: 15px;
+}
+
+.categories-heading {
+    font-weight: 400;
+    padding: 40px;
+    font-size: 33px;
+    text-align: center;
+}
+
+.products-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.products-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.chevron {
+    font-size: 30px;
+    color: var(--color-dark);
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: 10px;
+}
+
+.product-card {
+    background-color: white;
+    text-align: center;
+    border-radius: 20px;
+    padding-bottom: 10px;
+    max-width: 250px;
+    box-sizing: border-box;
+}
+
+.product-image {
+    max-width: 90%;
+    border-radius: 20px;
+    padding: 10px;
+    height: auto;
+}
+
+.chevron-controls {
+    display: none;
+}
+
+.all-products-button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.all-products-btn {
+    margin: 30px;
 }
 
 @media (max-width: 960px) {
