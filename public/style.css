@@ -16,6 +16,20 @@ body {
     line-height: 1.5;
 }
 
+.bg-body-branding {
+    background-color: var(--color-dark);
+}
+
+.navbar-toggler {
+    background-color: white;
+}
+
+.btn-outline-branding {
+    background-color: var(--color-lightest);
+    color: var(--color-darkest);
+    font-weight: 500;
+}
+
 h1 {
     font-family: "Bree Serif", serif;
     font-size: 40px;
@@ -53,7 +67,7 @@ h3 {
     text-align: center;
 }
 
-.btn {
+.btn-branding {
     background-color: var(--color-dark);
     color: white;
     font-weight: 600;
@@ -66,7 +80,7 @@ h3 {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.btn:hover {
+.btn-branding:hover {
     background-color: var(--color-main);
     transform: translateY(-2px);
 }
