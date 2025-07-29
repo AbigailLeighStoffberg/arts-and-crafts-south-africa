@@ -77,9 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCarousel();
   window.addEventListener('resize', updateCarousel);
 
-  // --- FIRESTORE PAGINATION LOGIC for products page ---
+  // --- FIRESTORE PAGINATION & FILTER & SORT LOGIC for products page ---
   const grid = document.getElementById("productsGrid");
   const paginationContainer = document.getElementById("paginationControls");
+
+  const categoryFilter = document.getElementById('categoryFilter');
+  const artistFilter = document.getElementById('artistFilter');
+  const sortOptions = document.getElementById('sortOptions');
 
   const productsPerPage = 12;
   let currentFirestorePage = 1;
@@ -87,6 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Map of artistId -> artistName
   let artistsMap = {};
+
+  // Store categories for filter dropdown
+  let categoriesSet = new Set();
 
   // Fetch all artists and build the map
   async function fetchArtists() {
@@ -102,20 +109,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const querySnapshot = await getDocs(collection(db, "products"));
     allProducts = querySnapshot.docs.map(doc => doc.data());
-    renderPage(1);
+
+    populateFilters();
+    filterAndRender();
   }
 
-  function renderPage(page) {
-    currentFirestorePage = page;
+  function populateFilters() {
+    // Clear filters first
+    categoryFilter.innerHTML = `<option value="">All Categories</option>`;
+    artistFilter.innerHTML = `<option value="">All Artists</option>`;
 
+    // Collect unique categories
+    categoriesSet = new Set(allProducts.map(p => p.category).filter(Boolean));
+
+    categoriesSet.forEach(category => {
+      const opt = document.createElement('option');
+      opt.value = category;
+      opt.textContent = category;
+      categoryFilter.appendChild(opt);
+    });
+
+    // Populate artist filter dropdown with artist names and IDs
+    Object.entries(artistsMap).forEach(([id, name]) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = name;
+      artistFilter.appendChild(opt);
+    });
+  }
+
+  function filterAndRender() {
+    const selectedCategory = categoryFilter.value;
+    const selectedArtistId = artistFilter.value;
+    const selectedSort = sortOptions.value;
+
+    let filtered = allProducts.filter(product => {
+      const categoryMatch = !selectedCategory || product.category === selectedCategory;
+      const artistMatch = !selectedArtistId || product.artistId === selectedArtistId;
+      return categoryMatch && artistMatch;
+    });
+
+    // Sorting logic
+    if (selectedSort === 'name-asc') {
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (selectedSort === 'name-desc') {
+      filtered.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (selectedSort === 'price-low-high') {
+      filtered.sort((a, b) => (a.priceZar || 0) - (b.priceZar || 0));
+    } else if (selectedSort === 'price-high-low') {
+      filtered.sort((a, b) => (b.priceZar || 0) - (a.priceZar || 0));
+    }
+
+    renderFilteredPage(filtered, 1);
+  }
+
+  // Render products page with filtered products and pagination
+  function renderFilteredPage(products, page) {
+    currentFirestorePage = page;
     grid.innerHTML = "";
+
     const start = (page - 1) * productsPerPage;
     const end = start + productsPerPage;
-    const productsToShow = allProducts.slice(start, end);
+    const productsToShow = products.slice(start, end);
 
     productsToShow.forEach(product => {
       const mainImage = product.mainImage ? product.mainImage : "placeholder.jpg";
-      // Use artist name from map
       const artistName = artistsMap[product.artistId] || "Unknown Artist";
 
       const card = document.createElement("div");
@@ -129,12 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.appendChild(card);
     });
 
-    renderPagination();
-    updateChevronState();
+    renderFilteredPagination(products);
+    updateFilteredChevronState(products);
   }
 
-  function renderPagination() {
-    const totalPages = Math.ceil(allProducts.length / productsPerPage);
+  // Render pagination buttons for filtered products
+  function renderFilteredPagination(filteredProducts) {
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
     paginationContainer.innerHTML = "";
 
     for (let i = 1; i <= totalPages; i++) {
@@ -146,18 +205,15 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.color = "var(--color-darkest)";
       }
       btn.addEventListener("click", () => {
-        renderPage(i);
+        renderFilteredPage(filteredProducts, i);
       });
       paginationContainer.appendChild(btn);
     }
   }
 
-  // Optional: Add chevron controls for Firestore pagination if you have them in HTML
-  const prevFirestoreBtn = document.getElementById('prevCategory');
-  const nextFirestoreBtn = document.getElementById('nextCategory');
-
-  function updateChevronState() {
-    const totalPages = Math.ceil(allProducts.length / productsPerPage);
+  // Update chevron button states based on filtered pagination
+  function updateFilteredChevronState(filteredProducts) {
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
     if (prevFirestoreBtn) {
       if (currentFirestorePage === 1) {
@@ -180,22 +236,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Get chevron buttons
+  const prevFirestoreBtn = document.getElementById('prevCategory');
+  const nextFirestoreBtn = document.getElementById('nextCategory');
+
+  // Chevron click handlers for filtered pagination
   if (prevFirestoreBtn) {
     prevFirestoreBtn.addEventListener('click', () => {
       if (currentFirestorePage > 1) {
-        renderPage(currentFirestorePage - 1);
+        const selectedCategory = categoryFilter.value;
+        const selectedArtistId = artistFilter.value;
+        let filtered = allProducts.filter(product => {
+          return (!selectedCategory || product.category === selectedCategory) &&
+                 (!selectedArtistId || product.artistId === selectedArtistId);
+        });
+        renderFilteredPage(filtered, currentFirestorePage - 1);
       }
     });
   }
 
   if (nextFirestoreBtn) {
     nextFirestoreBtn.addEventListener('click', () => {
-      const totalPages = Math.ceil(allProducts.length / productsPerPage);
+      const selectedCategory = categoryFilter.value;
+      const selectedArtistId = artistFilter.value;
+      let filtered = allProducts.filter(product => {
+        return (!selectedCategory || product.category === selectedCategory) &&
+               (!selectedArtistId || product.artistId === selectedArtistId);
+      });
+      const totalPages = Math.ceil(filtered.length / productsPerPage);
+
       if (currentFirestorePage < totalPages) {
-        renderPage(currentFirestorePage + 1);
+        renderFilteredPage(filtered, currentFirestorePage + 1);
       }
     });
   }
 
+  // Filter and sort dropdown change events
+  categoryFilter.addEventListener('change', filterAndRender);
+  artistFilter.addEventListener('change', filterAndRender);
+  sortOptions.addEventListener('change', filterAndRender);
+
+  // Start fetching products & artists
   fetchProducts();
 });

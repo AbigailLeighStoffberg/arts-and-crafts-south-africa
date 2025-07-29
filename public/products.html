@@ -55,7 +55,40 @@
     <h2 class="products-heading">Our Art Collection</h2>
     <h3 class="products-sub-heading">Authentic, handcrafted, and proudly South African</h3>
 
-
+    <div class="filter-sort-bar">
+        <div class="filter-group">
+            <label for="categoryFilter">
+                <i class="fa-solid fa-tags"></i> Category:
+            </label>
+            <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <!-- Populate dynamically -->
+            </select>
+        </div>
+    
+        <div class="filter-group">
+            <label for="artistFilter">
+                <i class="fa-solid fa-paintbrush"></i> Artist:
+            </label>
+            <select id="artistFilter">
+                <option value="">All Artists</option>
+                <!-- Populate dynamically -->
+            </select>
+        </div>
+    
+        <div class="filter-group">
+            <label for="sortOptions">
+                <i class="fa-solid fa-arrow-down-wide-short"></i> Sort:
+            </label>
+            <select id="sortOptions">
+                <option value="">Default</option>
+                <option value="name-asc">Name A–Z</option>
+                <option value="name-desc">Name Z–A</option>
+                <option value="price-low-high">Price Low–High</option>
+                <option value="price-high-low">Price High–Low</option>
+            </select>
+        </div>
+    </div>
 
     <section class="all-products-container">
         <div class="products">
