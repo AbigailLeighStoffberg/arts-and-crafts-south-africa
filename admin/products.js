@@ -31,11 +31,7 @@ export function clearProductForm() {
 
   document.getElementById("product-artist-id").selectedIndex = 0;
   document.getElementById("product-main-image").value = "";
-  document.getElementById("product-thumbnail-image").value = "";
-  document.getElementById("product-additional-images").value = "";
   document.getElementById("current-product-main-image").innerHTML = "";
-  document.getElementById("current-product-additional-images").innerHTML = "";
-  document.getElementById("current-product-thumbnail-image").innerHTML = "";
 
   document.getElementById("add-product-btn").textContent = "Add Product";
   document.getElementById("add-product-btn").classList.remove("update-mode");
@@ -59,8 +55,6 @@ async function handleProductSubmit() {
   const category = document.getElementById("product-category").value.trim();
   const subcategory = document.getElementById("product-subcategory")?.value.trim() || "";
   const imageFile = document.getElementById("product-main-image").files[0];
-  const thumbnailFile = document.getElementById("product-thumbnail-image").files[0];
-  const additionalFiles = document.getElementById("product-additional-images").files;
 
   const success = document.getElementById("product-submit-success");
   const error = document.getElementById("product-submit-error");
@@ -77,9 +71,7 @@ async function handleProductSubmit() {
   addBtn.disabled = true;
 
   try {
-    let imageUrl = editingProductImageUrl;
-    let thumbnailUrl = "";
-    let additionalImageUrls = [];
+    let mainImage = editingProductImageUrl;
 
     const safeName = name.replace(/\s+/g, "_").toLowerCase();
 
@@ -95,20 +87,7 @@ async function handleProductSubmit() {
       }
       const imageRef = ref(storage, `products/${safeName}_${Date.now()}_${imageFile.name}`);
       await uploadBytes(imageRef, imageFile);
-      imageUrl = await getDownloadURL(imageRef);
-    }
-
-    if (thumbnailFile) {
-      const thumbRef = ref(storage, `products/thumbnail/${safeName}_${Date.now()}_${thumbnailFile.name}`);
-      await uploadBytes(thumbRef, thumbnailFile);
-      thumbnailUrl = await getDownloadURL(thumbRef);
-    }
-
-    for (let file of additionalFiles) {
-      const addRef = ref(storage, `products/additional/${safeName}_${Date.now()}_${file.name}`);
-      await uploadBytes(addRef, file);
-      const url = await getDownloadURL(addRef);
-      additionalImageUrls.push(url);
+      mainImage = await getDownloadURL(imageRef);
     }
 
     const productData = {
@@ -120,9 +99,7 @@ async function handleProductSubmit() {
       artistId,
       category,
       subcategory,
-      imageUrl,
-      thumbnailUrl,
-      additionalImageUrls,
+      mainImage,
       updatedAt: new Date(),
     };
 
@@ -152,11 +129,12 @@ async function handleProductSubmit() {
   }
 }
 
-export async function loadProducts() {
+export async function loadProducts(artistFilterId = "") {
   const list = document.getElementById("products-list");
   if (!list) return;
 
   list.innerHTML = "Loading...";
+
   try {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
@@ -167,27 +145,26 @@ export async function loadProducts() {
     }
 
     let html = "<ul style='list-style:none;padding:0'>";
+
     snapshot.forEach(docSnap => {
       const product = docSnap.data();
       const id = docSnap.id;
+
+      if (artistFilterId && product.artistId !== artistFilterId) return;
 
       html += `<li style="margin-bottom:20px;">
         <strong>${product.name}</strong><br/>
         Price: $${typeof product.priceUsd === 'number' ? product.priceUsd.toFixed(2) : "N/A"}<br/>
         Quantity: ${product.quantity}<br/>
         Category: ${product.category || "N/A"}<br/>
-        ${product.imageUrl ? `<div><strong>Main:</strong><br/><img src="${product.imageUrl}" width="80"/></div>` : ""}
-        ${product.thumbnailUrl ? `<div><strong>Thumbnail:</strong><br/><img src="${product.thumbnailUrl}" width="60"/></div>` : ""}
-        ${Array.isArray(product.additionalImageUrls) && product.additionalImageUrls.length > 0 ? `
-          <div><strong>Additional Images:</strong><br/>
-            ${product.additionalImageUrls.map(url => `<img src="${url}" width="60" style="margin:4px;">`).join("")}
-          </div>` : ""}
+        ${product.mainImage ? `<div><strong>Main Image:</strong><br/><img src="${product.mainImage}" width="80"/></div>` : ""}
         <div>
           <button class="edit-product-btn" data-id="${id}">Edit</button>
           <button class="delete-product-btn" data-id="${id}">Delete</button>
         </div>
       </li>`;
     });
+
     html += "</ul>";
     list.innerHTML = html;
 
@@ -214,7 +191,7 @@ async function editProduct(id) {
 
   const data = docSnap.data();
   editingProductId = id;
-  editingProductImageUrl = data.imageUrl;
+  editingProductImageUrl = data.mainImage;
 
   document.getElementById("product-name").value = data.name || "";
   document.getElementById("product-description").value = data.description || "";
@@ -230,19 +207,9 @@ async function editProduct(id) {
   document.getElementById("add-product-btn").classList.add("update-mode");
   document.getElementById("cancel-edit-product-btn").style.display = "inline-block";
 
-  document.getElementById("current-product-main-image").innerHTML = data.imageUrl
-    ? `<img src="${data.imageUrl}" width="80" style="margin-top: 8px; border: 1px solid #ccc;">`
+  document.getElementById("current-product-main-image").innerHTML = data.mainImage
+    ? `<img src="${data.mainImage}" width="80" style="margin-top: 8px; border: 1px solid #ccc;">`
     : "<p>No main image.</p>";
-
-  document.getElementById("current-product-thumbnail-image").innerHTML = data.thumbnailUrl
-    ? `<img src="${data.thumbnailUrl}" width="60" style="margin-top: 8px; border: 1px solid #ccc;">`
-    : "<p>No thumbnail image.</p>";
-
-  const addImagesDiv = document.getElementById("current-product-additional-images");
-  addImagesDiv.innerHTML = Array.isArray(data.additionalImageUrls) && data.additionalImageUrls.length > 0
-    ? `<p><strong>Current Additional Images:</strong></p>
-       <div>${data.additionalImageUrls.map(url => `<img src="${url}" width="60" style="margin:4px;">`).join("")}</div>`
-    : "<p>No additional images.</p>";
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -253,5 +220,30 @@ async function deleteProduct(id) {
     await loadProducts();
   } catch (err) {
     console.error("Delete product failed", err);
+  }
+}
+
+// 🔥 NEW FUNCTION: Populate Artist Filter Dropdown
+export async function populateArtistFilter() {
+  const select = document.getElementById("artist-filter");
+  if (!select) return;
+
+  try {
+    const snapshot = await getDocs(collection(db, "artists"));
+    snapshot.forEach(doc => {
+      const artist = doc.data();
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = artist.name || "Unnamed Artist";
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", async () => {
+      const selectedId = select.value;
+      await loadProducts(selectedId);
+    });
+
+  } catch (err) {
+    console.error("Failed to populate artist filter", err);
   }
 }

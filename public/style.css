@@ -5,6 +5,7 @@
     --color-dark: #4f3b78;
     --color-darkest: #2f1b41;
     --highlight-color: #3BC5D7;
+    --light-font: #2f1b4191;
 }
 
 body {
@@ -390,19 +391,10 @@ h3 {
 .all-products-container {
     background-color: var(--color-lightest);
     padding: 40px;
-}
-
-.products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 80%;
-    gap: 15px;
-}
-
-.categories-heading {
-    font-weight: 400;
-    padding: 40px;
-    font-size: 33px;
-    text-align: center;
+    max-width: 1000px;
+    margin: 0 auto 40px auto;
+    border-radius: 20px;
+    box-sizing: border-box;
 }
 
 .products-wrapper {
@@ -431,7 +423,7 @@ h3 {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 20px;
     justify-items: center;
     width: 100%;
@@ -439,34 +431,65 @@ h3 {
     margin-bottom: 10px;
 }
 
-.product-card {
+.product-card-products-page {
     background-color: white;
-    text-align: center;
     border-radius: 20px;
-    padding-bottom: 10px;
-    max-width: 250px;
+    padding: 10px 10px 0 10px;
+    max-width: 300px;
     box-sizing: border-box;
+    text-align: start;
 }
 
-.product-image {
-    max-width: 90%;
+.product-image-products-page {
+    width: 100%;
+    max-width: 250px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center;
     border-radius: 20px;
-    padding: 10px;
-    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
-.chevron-controls {
+.item-name {
+    padding: 5px 5px 0px 5px;
+    margin-bottom: 1px;
+}
+
+small {
+    padding: 0px 5px 5px 5px;
+    color: var(--light-font);
+}
+
+.item-price {
+    text-align: end;
+}
+
+.chevron-controls-products-page {
     display: none;
 }
 
-.all-products-button-container {
+.pagination-controls {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
 }
 
-.all-products-btn {
-    margin: 30px;
+.pagination-btn {
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease-in-out;
 }
+
+.pagination-btn:hover {
+    background-color: var(--color-main);
+    color: white;
+}
+
+/* home page media queries */
 
 @media (max-width: 960px) {
     h1 {
@@ -634,5 +657,14 @@ h3 {
     .sa-map-img {
         max-width: 90%;
         padding: 0 20px;
+    }
+}
+
+/* products page media queries */
+
+@media (min-width: 800px) {
+
+    .products-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }

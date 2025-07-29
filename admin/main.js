@@ -1,6 +1,6 @@
 import { setupAuth } from './auth.js';
 import { setupArtistForm, loadArtists, populateArtistDropdown } from './artists.js';
-import { setupProductForm, loadProducts } from './products.js';
+import { setupProductForm, loadProducts, populateArtistFilter } from './products.js'; // ⬅️ make sure this is imported
 
 function showSection(sectionId) {
   document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
@@ -22,5 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupProductForm();
   loadArtists();
   loadProducts();
-  populateArtistDropdown(); // 🔥 important
+  populateArtistDropdown();
+  populateArtistFilter(); // ✅ ADD THIS
 });

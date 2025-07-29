@@ -84,18 +84,6 @@
                     <input type="file" id="product-main-image" accept="image/*" />
                 </div>
 
-                <div style="margin-top: 15px;">
-                    <label for="product-thumbnail-image">Product Thumbnail Image (for listings):</label>
-                    <div id="current-product-thumbnail-image" class="current-image-display"></div>
-                    <input type="file" id="product-thumbnail-image" accept="image/*" />
-                </div>
-
-                <div style="margin-top: 15px;">
-                    <label for="product-additional-images">Additional Product Images (multiple allowed):</label>
-                    <div id="current-product-additional-images" class="current-image-display"></div>
-                    <input type="file" id="product-additional-images" accept="image/*" multiple />
-                </div>
-
                 <div class="product-form-buttons">
                     <button id="add-product-btn">Add Product</button>
                     <button id="cancel-edit-product-btn" style="display:none;">Cancel Edit</button>
@@ -104,6 +92,12 @@
                 <p id="product-submit-error" style="color:red;"></p>
 
                 <h3>Existing Products</h3>
+                <div style="margin-top: 20px;">
+                    <label for="artist-filter" style="font-weight: bold;">Filter by Artist:</label>
+                    <select id="artist-filter">
+                        <option value="">Select Artist</option>
+                    </select>
+                </div>
                 <div id="products-list">Loading...</div>
             </section>
 
