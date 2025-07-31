@@ -16,10 +16,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous" />
     <link rel="stylesheet" href="style.css?v=2" />
+
     <title>Our Art Collection</title>
 </head>
 
-<body>
+<body class="product-details-body">
     <header>
         <nav class="navbar navbar-expand-lg bg-body-branding">
             <div class="container-fluid">
@@ -62,36 +63,37 @@
     <main>
         <section class="product-details-background">
             <div class="product-details-container">
-                <div class="product-images-grid">
-                    <img src="https://shecodes-assets.s3.amazonaws.com/products/616/original/village-on-the-lake.png?1674235889"
-                        alt="Village on the Lake framed painting" class="main-product-image" />
-                    <div class="thumbnail-images">
-                        <img src="https://shecodes-assets.s3.amazonaws.com/products/616/original/village-on-the-lake.png?1674235889"
-                            alt="Village on the Lake thumbnail 1" class="thumbnail-image" />
-                        <img src="https://shecodes-assets.s3.amazonaws.com/products/616/original/village-on-the-lake.png?1674235889"
-                            alt="Village on the Lake thumbnail 2" class="thumbnail-image" />
+                <div class="product-images-gallery">
+                    <!-- Main image -->
+                    <img id="mainImage" class="main-product-image" src="images/image-1.jpg" />
+                    
+                    <!-- Thumbnails -->
+                    <div class="thumbnail-row">
+                        <img class="smaller-image active" src="images/thumb-1.jpg" data-full="images/image-1.jpg" />
+                        <img class="smaller-image" src="images/thumb-2.jpg" data-full="images/image-2.jpg" />
+                        <img class="smaller-image" src="images/thumb-3.jpg" data-full="images/image-3.jpg" />
                     </div>
                 </div>
                 <div class="product-texts">
                     <div class="product-details-header">
-                        <h3 class="product-details-heading">Village on the Lake framed painting</h3>
+                        <h3 class="product-details-heading">Village on the Lake</h3>
                         <i class="far fa-heart product-wishlist-icon"></i>
                     </div>
                     <p class="made-by-text">Made by <small class="product-details-artist-name"
-                            id="product-details-artist-name">Fart Artz</small></p>
+                            id="product-details-artist-name">Jane Doe</small></p>
                     <p class="details-heading">Details</p>
                     <ul class="product-details-list">
-                        <li>Framed 30x20cm framed PRINT</li>
-                        <li>Printed on wada wada quality paper</li>
-                        <li>Signed by artist</li>
-                        <li>wada wada</li>
+                        <li>Oil on Canvas</li>
+                        <li>Dimensions: 60cm x 80cm</li>
+                        <li>Framed</li>
+                        <li>Year: 2023</li>
                     </ul>
-                    <p class="price-stock-info">Price: R800 excluding delivery</p>
-                    <p class="price-stock-info">Stock: 1</p>
+                    <p class="price-stock-info">Price: R 2,500.00</p>
+                    <p class="price-stock-info">In Stock</p>
 
                     <p class="shipping-info">
-                        Shipping available across South Africa and internationally. Orders are typically processed within
-                        3–5 business days.
+                        Shipping available across South Africa and internationally. Orders are typically processed
+                        within 3–5 business days.
                         You’ll receive tracking information once your order ships.
                     </p>
                     <button class="btn btn-branding add-to-cart-btn">ADD TO CART</button>
@@ -107,7 +109,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="scripts.js?v=3"></script>
+    <script type="module" src="scripts.js?v=5"></script>
 </body>
 
 </html>
