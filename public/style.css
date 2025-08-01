@@ -838,7 +838,7 @@ body.artist-details main {
 .hidden {
     display: none;
 }
-/* Media Queries for Artist Details Section */
+
 /* ----------------------------
     ≤ 480px (Mobile - Smallest)
 ----------------------------- */
@@ -846,6 +846,9 @@ body.artist-details main {
     .artist-header h1 {
         font-size: 38px;
         /* Adjust for smaller screens */
+
+    }
+}
 
 @media (max-width: 960px) {
     h1 {
@@ -1136,5 +1139,82 @@ body.artist-details main {
     .add-to-cart-btn {
         font-size: 14px;
         padding: 10px 20px;
+    }
+}
+
+/* --- Products Page Specific Responsiveness --- */
+
+/* Adjustments for smaller screens on the filter/sort bar */
+@media (max-width: 768px) {
+    .filter-sort-bar {
+        flex-direction: column;
+        /* Stack filters vertically on smaller screens */
+        align-items: center;
+        /* Center them when stacked */
+        gap: 15px;
+        /* Reduce gap when stacked */
+        padding: 15px;
+    }
+
+    .filter-group {
+        width: 100%;
+        /* Make filter groups take full width */
+        justify-content: center;
+        /* Center content within filter group */
+    }
+
+    .filter-group select {
+        width: auto;
+        /* Allow select to shrink naturally */
+        min-width: 150px;
+        /* Ensure select boxes are still readable */
+    }
+}
+
+/* Adjustments for even smaller screens on the products grid */
+@media (max-width: 576px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        /* Allow slightly larger min-width for better display on very small screens */
+        padding: 0 10px;
+        /* Add some horizontal padding to the grid */
+    }
+
+    .all-products-container {
+        padding: 20px 10px;
+        /* Reduce container padding on small screens */
+        margin: 0 10px 20px 10px;
+        /* Adjust margins */
+    }
+
+    .product-card-products-page {
+        padding: 8px 8px 0 8px;
+        /* Slightly reduce card padding */
+    }
+
+    .item-name {
+        font-size: 15px;
+        /* Adjust font size for product name */
+    }
+
+    small {
+        font-size: 12px;
+        /* Adjust font size for artist name */
+    }
+
+    .item-price {
+        font-size: 16px;
+        /* Adjust font size for price */
+    }
+}
+
+/* Ensure pagination buttons wrap nicely */
+@media (max-width: 480px) {
+    .pagination-controls {
+        flex-direction: column;
+        /* Stack pagination buttons vertically */
+        align-items: center;
+        gap: 8px;
+        /* Smaller gap when stacked */
     }
 }
