@@ -17,5 +17,11 @@ function showSection(sectionId) {
 window.showSection = showSection;
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupAuth(); // This will handle showing/hiding login/dashboard
+  setupAuth();
+  setupArtistForm();
+  setupProductForm();
+  loadArtists();
+  loadProducts();
+  populateArtistDropdown();
+  populateArtistFilter(); // ✅ ADD THIS
 });

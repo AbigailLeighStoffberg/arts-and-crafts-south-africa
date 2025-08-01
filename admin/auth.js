@@ -39,14 +39,6 @@ export function setupAuth() {
       document.getElementById("login-section").style.display = "none";
       document.getElementById("dashboard-section").style.display = "block";
       window.showSection("artists");
-
-      // ✅ Only run these if user is logged in
-      setupArtistForm();
-      setupProductForm();
-      loadArtists();
-      loadProducts();
-      populateArtistDropdown();
-      populateArtistFilter();
     } else {
       document.getElementById("login-section").style.display = "block";
       document.getElementById("dashboard-section").style.display = "none";
@@ -56,5 +48,5 @@ export function setupAuth() {
       document.getElementById("password").value = "";
       loginError.textContent = "";
     }
-});
+  });
 }
