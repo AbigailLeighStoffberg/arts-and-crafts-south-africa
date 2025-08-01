@@ -727,6 +727,249 @@ small {
     color: var(--color-lightest) !important;
 }
 
+/* Artist Details Page Specific Styles */
+body.artist-details main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    /* Changed to column for header and content separation */
+    align-items: center;
+    /* Center content horizontally */
+    padding: 40px 20px;
+    /* Add some padding */
+    box-sizing: border-box;
+}
+
+.artist-header {
+    text-align: center;
+    margin-bottom: 40px;
+    /* Space between header and content */
+    margin-top: 30px;
+}
+
+.artist-header h2 {
+    color: var(--color-dark);
+    /* Deeper purple for "Meet the Artist" */
+    font-size: 30px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.artist-header h1 {
+    color: var(--color-darkest);
+    /* Darkest purple for the artist name */
+    font-family: "Bree Serif", serif;
+    font-size: 55px;
+    /* Larger font size for artist name */
+    margin: 0;
+    letter-spacing: 2px;
+    /* Slight letter spacing */
+}
+
+.artist-details-wrapper {
+    display: flex;
+    align-items: center;
+    /* Align items vertically in the center */
+    gap: 50px;
+    /* Space between image and description */
+    max-width: 1000px;
+    /* Max width for the content wrapper */
+    width: 100%;
+    justify-content: center;
+    /* Center the wrapper content */
+    flex-wrap: wrap;
+    /* Allow wrapping on smaller screens */
+}
+
+.artist-image-container {
+    width: 300px;
+    /* Fixed width for the image container */
+    height: 300px;
+    /* Fixed height for the image container */
+    border-radius: 50%;
+    /* Make it circular */
+    border: 5px solid var(--highlight-color);
+    /* Cyan border */
+    display: flex;
+    /* Use flexbox to center the image inside */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* Hide parts of the image outside the circle */
+    flex-shrink: 0;
+    /* Prevent shrinking on smaller screens */
+    background-color: white;
+    /* Background for when image is smaller than container */
+}
+
+.artist-details-image {
+    width: 100%;
+    /* Make image fill its container */
+    height: 100%;
+    /* Make image fill its container */
+    object-fit: cover;
+    /* Cover the container, cropping as needed */
+    object-position: center;
+    /* Center the image within its frame */
+    border-radius: 50%;
+    /* Ensure the image itself is also circular */
+    display: block;
+    /* Remove any extra space below the image */
+}
+
+.artist-description-box {
+    background-color: var(--color-lightest);
+    /* Lightest purple background */
+    padding: 30px 40px;
+    /* Padding inside the box */
+    border-radius: 15px;
+    /* Rounded corners */
+    flex: 1;
+    /* Allow it to take up available space */
+    min-width: 300px;
+    /* Minimum width before wrapping */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    /* Subtle shadow */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Push text and icons to ends if space allows */
+}
+
+.artist-bio {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-darkest);
+    margin-bottom: 30px;
+    /* Space between text and icons */
+}
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+    /* Space between icons */
+    justify-content: flex-end;
+    /* Align icons to the right */
+    margin-top: auto;
+    /* Push icons to the bottom if container grows */
+}
+
+.social-icon {
+    font-size: 30px;
+    /* Size of the icons */
+    color: var(--color-main);
+    /* Main purple color for icons */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icon:hover {
+    color: var(--color-dark);
+    /* Darker purple on hover */
+    transform: translateY(-3px);
+    /* Slight lift effect */
+}
+
+/* Media Queries for Artist Details Section */
+/* ----------------------------
+    ≤ 480px (Mobile - Smallest)
+----------------------------- */
+@media (max-width: 480px) {
+    .artist-header h1 {
+        font-size: 38px;
+        /* Adjust for smaller screens */
+    }
+
+    .artist-header h2 {
+        font-size: 20px;
+        /* Adjust for smaller screens */
+    }
+
+    .artist-details-wrapper {
+        flex-direction: column;
+        /* Stack vertically */
+        gap: 30px;
+        /* Adjust gap */
+    }
+
+    .artist-image-container {
+        width: 220px;
+        /* Smaller circle */
+        height: 220px;
+    }
+
+    .artist-description-box {
+        padding: 20px;
+        /* Less padding */
+        min-width: unset;
+        /* Remove min-width to allow full flexibility */
+        width: 100%;
+        /* Take full width */
+    }
+
+    .artist-bio {
+        font-size: 15px;
+        /* Smaller font size */
+        margin-bottom: 20px;
+    }
+
+    .social-icons {
+        justify-content: center;
+        /* Center icons on small screens */
+        gap: 15px;
+        /* Adjust gap */
+    }
+
+    .social-icon {
+        font-size: 26px;
+        /* Smaller icons */
+    }
+}
+
+/* ----------------------------
+    ≤ 768px (Tablets & Small Screens)
+----------------------------- */
+@media (max-width: 768px) {
+
+    /* Main section for artist details will now be a column */
+    body.artist-details main {
+        padding: 30px 15px;
+    }
+
+    .artist-details-wrapper {
+        flex-direction: column;
+        /* Stack image and text vertically */
+        gap: 30px;
+        /* Adjust gap for stacked layout */
+    }
+
+    .artist-image-container {
+        width: 250px;
+        /* Slightly smaller circle */
+        height: 250px;
+    }
+
+    .artist-description-box {
+        padding: 25px 30px;
+        /* Adjusted padding */
+        min-width: unset;
+        /* Allow flexibility */
+        width: 100%;
+        /* Take full width within wrapper */
+        max-width: 500px;
+        /* Max width to prevent it from being too wide */
+    }
+
+    .social-icons {
+        justify-content: center;
+        /* Center icons */
+    }
+}
+
+.hidden {
+    display: none !important;
+    /* Use !important to ensure it overrides other display properties */
+}
+
 /* ----------------------------
    ≤ 480px (Mobile - Smallest)
 ----------------------------- */

@@ -31,12 +31,15 @@ export function setupArtistForm() {
 export function clearArtistForm() {
   const fields = [
     "artist-name", "artist-email", "artist-phone", "artist-city", "artist-country",
-    "artist-bio", "artist-facebook-link", "artist-instagram-link", "artist-twitter-link"
+    "artist-bio",
+    "artist-facebook-link", "artist-instagram-link", "artist-twitter-link",
+    "artist-pinterest-link", "artist-linkedin-link", "artist-youtube-link",
+    "artist-tiktok-link", "artist-artstation-link", "artist-email-link", "artist-website-link"
   ];
   fields.forEach(id => document.getElementById(id).value = "");
   document.getElementById("artist-shipping").checked = false;
   document.getElementById("artist-image").value = "";
-  document.getElementById("current-artist-image").innerHTML = "";
+  document.getElementById("current-artist-image").innerHTML = ""; // Clear current image display
   document.getElementById("add-artist-btn").textContent = "Add Artist";
   document.getElementById("add-artist-btn").classList.remove("update-mode");
   document.getElementById("cancel-edit-btn").style.display = "none";
@@ -56,9 +59,19 @@ async function handleArtistSubmit() {
   const bio = document.getElementById("artist-bio").value.trim();
   const shipping = document.getElementById("artist-shipping").checked;
   const imageFile = document.getElementById("artist-image").files[0];
+
+  // --- COLLECT ALL SOCIAL LINKS ---
   const facebook = document.getElementById("artist-facebook-link").value.trim();
   const instagram = document.getElementById("artist-instagram-link").value.trim();
   const twitter = document.getElementById("artist-twitter-link").value.trim();
+  const pinterest = document.getElementById("artist-pinterest-link").value.trim();
+  const linkedin = document.getElementById("artist-linkedin-link").value.trim();
+  const youtube = document.getElementById("artist-youtube-link").value.trim();
+  const tiktok = document.getElementById("artist-tiktok-link").value.trim();
+  const artstation = document.getElementById("artist-artstation-link").value.trim();
+  const artistEmailLink = document.getElementById("artist-email-link").value.trim(); // Renamed to avoid conflict with artist's primary email
+  const website = document.getElementById("artist-website-link").value.trim();
+  // --- END COLLECT ALL SOCIAL LINKS ---
 
   const success = document.getElementById("submit-success");
   const error = document.getElementById("submit-error");
@@ -79,6 +92,7 @@ async function handleArtistSubmit() {
     if (imageFile) {
       if (editingArtistImageUrl) {
         try {
+          // Extract path from existing URL to delete the old image from storage
           const url = new URL(editingArtistImageUrl);
           const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
           await deleteObject(ref(storage, path));
@@ -86,11 +100,25 @@ async function handleArtistSubmit() {
           console.warn("Could not delete old image", e);
         }
       }
+      // Upload new image
       const safeName = name.replace(/\s+/g, "_").toLowerCase();
       const imageRef = ref(storage, `artists/${safeName}_${Date.now()}_${imageFile.name}`);
       await uploadBytes(imageRef, imageFile);
       imageUrl = await getDownloadURL(imageRef);
     }
+
+    // Construct the socials object dynamically, only including non-empty fields
+    const socials = {};
+    if (facebook) socials.facebook = facebook;
+    if (instagram) socials.instagram = instagram;
+    if (twitter) socials.twitter = twitter;
+    if (pinterest) socials.pinterest = pinterest;
+    if (linkedin) socials.linkedin = linkedin;
+    if (youtube) socials.youtube = youtube;
+    if (tiktok) socials.tiktok = tiktok;
+    if (artstation) socials.artstation = artstation;
+    if (artistEmailLink) socials.email = artistEmailLink; // Use the new variable name
+    if (website) socials.website = website;
 
     const artistData = {
       name,
@@ -98,24 +126,26 @@ async function handleArtistSubmit() {
       phone,
       address: { city, country },
       bio,
-      profileImage: imageUrl,
+      profileImage: imageUrl, // Save the new or existing image URL
       shippingHandledByArtist: shipping,
-      socials: { facebook, instagram, twitter },
+      socials: socials, // Use the dynamically created socials object
       updatedAt: new Date(),
     };
 
     if (editingArtistId) {
+      // Update existing artist
       await updateDoc(doc(db, "artists", editingArtistId), artistData);
       success.textContent = "Artist updated!";
     } else {
+      // Add new artist
       artistData.createdAt = new Date();
       await addDoc(collection(db, "artists"), artistData);
       success.textContent = "Artist added!";
     }
 
-    clearArtistForm();
-    await loadArtists();
-    await populateArtistDropdown();
+    clearArtistForm(); // Clear form after successful submission
+    await loadArtists(); // Reload the list of artists
+    await populateArtistDropdown(); // Repopulate dropdown for products
   } catch (err) {
     console.error("Artist submit error", err);
     error.textContent = "Failed to save artist.";
@@ -143,9 +173,25 @@ export async function loadArtists() {
       const artist = docSnap.data();
       const id = docSnap.id;
       const socials = artist.socials || {};
-      const socialLinks = ["facebook", "instagram", "twitter"]
-        .map(platform => socials[platform] ? `<a href="${socials[platform]}" target="_blank">${platform}</a>` : '')
-        .filter(Boolean).join(" | ");
+
+      // List all potential social platforms for display
+      const allSocialPlatforms = [
+        "facebook", "instagram", "twitter", "pinterest", "linkedin",
+        "youtube", "tiktok", "artstation", "email", "website"
+      ];
+
+      const socialLinks = allSocialPlatforms
+        .map(platform => {
+          if (socials[platform]) {
+            // Special handling for email link to use 'mailto:'
+            const href = (platform === "email") ? `mailto:${socials[platform]}` : socials[platform];
+            // Capitalize the first letter of the platform name for display
+            return `<a href="${href}" target="_blank">${platform.charAt(0).toUpperCase() + platform.slice(1)}</a>`;
+          }
+          return '';
+        })
+        .filter(Boolean) // Remove empty strings (platforms with no link)
+        .join(" | ");
 
       html += `<li style="margin-bottom:20px;">
         <strong>${artist.name}</strong> (${artist.email})<br/>
@@ -161,6 +207,7 @@ export async function loadArtists() {
     html += "</ul>";
     list.innerHTML = html;
 
+    // Attach event listeners for edit and delete buttons
     document.querySelectorAll(".edit-artist-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         editArtist(btn.dataset.id);
@@ -180,10 +227,13 @@ export async function loadArtists() {
 }
 
 async function editArtist(id) {
-  const docSnap = await getDocs(query(collection(db, "artists"), where("__name__", "==", id)));
+  // Use getDoc with a specific doc reference for better performance
+  const docRef = doc(db, "artists", id);
+  const docSnap = await getDocs(query(collection(db, "artists"), where("__name__", "==", id))); // You can replace this with getDoc(docRef) for direct fetch
+
   if (docSnap.empty) return;
 
-  const docData = docSnap.docs[0].data();
+  const docData = docSnap.docs[0].data(); // If using getDoc, it would be docSnap.data();
 
   editingArtistId = id;
   editingArtistImageUrl = docData.profileImage;
@@ -196,9 +246,29 @@ async function editArtist(id) {
   document.getElementById("artist-bio").value = docData.bio || "";
   document.getElementById("artist-shipping").checked = !!docData.shippingHandledByArtist;
 
-  document.getElementById("artist-facebook-link").value = docData.socials?.facebook || "";
-  document.getElementById("artist-instagram-link").value = docData.socials?.instagram || "";
-  document.getElementById("artist-twitter-link").value = docData.socials?.twitter || "";
+  // --- CORRECTED SOCIAL LINKS POPULATION ---
+  const socials = docData.socials || {}; // Ensure socials object exists
+  document.getElementById("artist-facebook-link").value = socials.facebook || "";
+  document.getElementById("artist-instagram-link").value = socials.instagram || "";
+  document.getElementById("artist-twitter-link").value = socials.twitter || "";
+  document.getElementById("artist-pinterest-link").value = socials.pinterest || "";
+  document.getElementById("artist-linkedin-link").value = socials.linkedin || "";
+  document.getElementById("artist-youtube-link").value = socials.youtube || "";
+  document.getElementById("artist-tiktok-link").value = socials.tiktok || "";
+  document.getElementById("artist-artstation-link").value = socials.artstation || "";
+  document.getElementById("artist-email-link").value = socials.email || "";
+  document.getElementById("artist-website-link").value = socials.website || "";
+  // --- END CORRECTED SOCIAL LINKS POPULATION ---
+
+  // Display current image if exists when editing
+  const currentArtistImageDiv = document.getElementById("current-artist-image");
+  if (currentArtistImageDiv) {
+    if (docData.profileImage) {
+      currentArtistImageDiv.innerHTML = `<img src="${docData.profileImage}" alt="Current Artist Image" width="100px" style="margin-top: 10px; border-radius: 5px;">`;
+    } else {
+      currentArtistImageDiv.innerHTML = "No current image.";
+    }
+  }
 
   document.getElementById("artist-form-title").textContent = "Edit Artist";
   document.getElementById("add-artist-btn").textContent = "Update Artist";
@@ -210,8 +280,21 @@ async function editArtist(id) {
 
 async function deleteArtist(id) {
   try {
+    // Optionally delete associated image from storage
+    // const artistDoc = await getDoc(doc(db, "artists", id));
+    // if (artistDoc.exists() && artistDoc.data().profileImage) {
+    //     try {
+    //         const url = new URL(artistDoc.data().profileImage);
+    //         const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
+    //         await deleteObject(ref(storage, path));
+    //     } catch (e) {
+    //         console.warn("Could not delete associated image from storage:", e);
+    //     }
+    // }
+
     await deleteDoc(doc(db, "artists", id));
     await loadArtists();
+    await populateArtistDropdown(); // Also refresh dropdown after deletion
   } catch (err) {
     console.error("Delete artist failed", err);
   }
