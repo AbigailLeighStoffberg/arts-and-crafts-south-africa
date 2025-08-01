@@ -735,6 +735,118 @@ small {
     color: var(--color-lightest) !important;
 }
 
+/* Artist Details Page Specific Styles */
+body.artist-details main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+.artist-header {
+    text-align: center;
+    margin-bottom: 40px;
+    margin-top: 30px;
+}
+
+.artist-header h2 {
+    color: var(--color-dark);
+    font-size: 30px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.artist-header h1 {
+    color: var(--color-darkest);
+    font-family: "Bree Serif", serif;
+    font-size: 55px;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.artist-details-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    max-width: 1000px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.artist-image-container {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 5px solid var(--highlight-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: white;
+}
+
+.artist-details-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+    display: block;
+}
+
+.artist-description-box {
+    background-color: var(--color-lightest);
+    padding: 30px 40px;
+    border-radius: 15px;
+    flex: 1;
+    min-width: 300px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.artist-bio {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-darkest);
+    margin-bottom: 30px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    margin-top: auto;
+}
+
+.social-icon {
+    font-size: 30px;
+    color: var(--color-main);
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icon:hover {
+    color: var(--color-dark);
+    transform: translateY(-3px);
+}
+
+.hidden {
+    display: none;
+}
+/* Media Queries for Artist Details Section */
+/* ----------------------------
+    ≤ 480px (Mobile - Smallest)
+----------------------------- */
+@media (max-width: 480px) {
+    .artist-header h1 {
+        font-size: 38px;
+        /* Adjust for smaller screens */
+
 @media (max-width: 960px) {
     h1 {
         font-size: 30px;
