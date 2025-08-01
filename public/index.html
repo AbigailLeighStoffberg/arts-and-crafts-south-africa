@@ -19,48 +19,55 @@
   <title>Document</title>
 </head>
 
-<nav class="navbar navbar-expand-lg bg-body-branding">
-  <div class="container-fluid">
-    <a class="navbar-brand text-white" href="#">Arts and Crafts South Africa</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active text-white" aria-current="page" href="#">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="#">Artists</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Shop
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-        <button class="btn btn-outline-branding" type="submit">Search</button>
-      </form>
+<body>
+
+  <nav class="navbar navbar-expand-lg bg-body-branding">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="index.html">Arts and Crafts South Africa</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          <li class="nav-item">
+            <a class="nav-link active text-white" aria-current="page" href="index.html">Home</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-white" href="artists.html">Artists</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Shop
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="products.html">All Products</a></li>
+            </ul>
+          </li>
+
+        </ul>
+
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+          <button class="btn btn-outline-branding" type="submit">Search</button>
+        </form>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
   <div class="header-container">
     <h2>Welcome to</h2>
     <h1>Arts and Crafts South Africa</h1>
     <h3>Lovingly crafted local art</h3>
-    <a href="shop.html" class="header-btn btn-branding">Shop Now</a>
+    <a href="products.html" class="header-btn btn-branding">Shop Now</a>
   </div>
 
   <section class="home-about-container">
@@ -69,14 +76,14 @@
       <div class="home-about-texts-container">
         <p class="about-sub-heading">Who we are</p>
         <h2 class="about-heading">About us</h2>
-        <p class="home-about-text">Arts and Crafts South Africa is a home for uniqSue, handcrafted work by local artists
+        <p class="home-about-text">Arts and Crafts South Africa is a home for unique, handcrafted work by local artists
           and crafters. From paintings and
           pottery to jewelry, crochet, homeware, and heartfelt gifts - every piece tells a story.
 
           We’re here to celebrate and support local talent by sharing their craft with those who appreciate the weird,
           the warm,
           and the wonderfully made.</p>
-        <a href="shop.html" class="btn-branding learn-more-btn">Learn more</a>
+        <a href="products.html" class="btn-branding learn-more-btn">Learn more</a>
       </div>
     </div>
   </section>
@@ -86,38 +93,6 @@
     <div class="carousel-wrapper">
       <i class="fa-solid fa-circle-chevron-left chevron left" id="prevCategory"></i>
       <div class="carousel-grid">
-        <div class="product-card">
-          <img class="product-image" src="images/home.png">
-          <p class="category-name">Home & Garden</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/jewelry.png">
-          <p class="category-name">Jewelry</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/paintings.png">
-          <p class="category-name">Art & Prints</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/wooden.png">
-          <p class="category-name">Handcrafted & Wooden</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/pets.png">
-          <p class="category-name">Pets</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/accessories.png">
-          <p class="category-name">Apparel & Accessories</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/kids.png">
-          <p class="category-name">For kids</p>
-        </div>
-        <div class="product-card">
-          <img class="product-image" src="images/coming-soon.png">
-          <p class="category-name">Digital Works</p>
-        </div>
       </div>
       <i class="fa-solid fa-circle-chevron-right chevron right" id="nextCategory"></i>
     </div>
@@ -134,25 +109,26 @@
     <div class="art-classes-grid">
       <div class="classes-grid-section">
         <h2 class="art-classes-heading">Art
-        <br />Classes
+          <br />Classes
         </h2>
         <h3 class="for-kids-text">for kids</h3>
-        <p class="art-classes-short-description">Let your child explore different materials and techniques while expressing their creativity</p>
+        <p class="art-classes-short-description">Let your child explore different materials and techniques while
+          expressing their creativity</p>
       </div>
       <div class="classes-grid-section">
         <img class="classes-image" src="images/art-classes.png">
       </div>
       <div class="classes-grid-section">
-        <iframe
-          class="map-embed"
+        <iframe class="map-embed"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3586.4226107854965!2d27.814966076325085!3d-25.986970155163686!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e959b4d3dc4cdc9%3A0xa8b60e4b404c7b9b!2sCirqlarBidon%20-%20Muldersdrift%2C%20South%20Africa!5e0!3m2!1sen!2sgr!4v1753257037496!5m2!1sen!2sgr"
-          style="border:0;" allowfullscreen="" loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"></iframe>
+          style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
       <div class="classes-grid-section art-classes-details">
         <h2 class="where-and-when-heading">Where and When?</h2>
-        <p class="classes-details-text">Every weekend at Bidon in Muldersdrift for 90-minute sessions @ R150/lesson- or 4 lessons in advance for R480.</p>
-        <p class="classes-details-text">🍕Pizza from Cirqlar@Bidon is available for children to enjoy while they create.</p>
+        <p class="classes-details-text">Every weekend at Bidon in Muldersdrift for 90-minute sessions @ R150/lesson- or
+          4 lessons in advance for R480.</p>
+        <p class="classes-details-text">🍕Pizza from Cirqlar@Bidon is available for children to enjoy while they create.
+        </p>
         <a href="shop.html" class="btn-branding book-now-btn">Book now</a>
       </div>
       <div class="classes-grid-section classes-map-and-button-small">
@@ -191,8 +167,10 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-  <script src="scripts.js?v=2"></script>
+    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+    crossorigin="anonymous"></script>
+  <script type="module" src="scripts.js"></script>
+
 </body>
 
 </html>

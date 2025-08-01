@@ -25,7 +25,7 @@
         <nav>
             <button data-section="artists" class="active">Artists🎨</button>
             <button data-section="products">Products🖼️</button>
-            <button data-section="orders">Orders🛒</button>
+            <button data-section="categories">Categories🏷️</button> <button data-section="orders">Orders🛒</button>
             <button data-section="payments">Payments💳</button>
         </nav>
 
@@ -72,7 +72,10 @@
                 <h2 id="product-form-title">Add Product</h2>
                 <input type="text" id="product-name" placeholder="Product Name" />
                 <textarea id="product-description" placeholder="Product Description"></textarea>
-                <input type="text" id="product-category" placeholder="Category (e.g., Paintings, Ceramics)" />
+                <label for="product-category">Category:</label>
+                <select id="product-category">
+                    <option value="">-- Select Category --</option>
+                </select>
 
                 <label for="product-artist-id">Artist:</label>
                 <select id="product-artist-id">
@@ -83,7 +86,6 @@
                 <input type="number" id="product-price-zar" placeholder="Price (ZAR)" step="0.01" min="0" />
                 <input type="text" id="product-sku" placeholder="SKU (e.g., ART-001-VASE)" />
                 <input type="number" id="product-stock" placeholder="Stock Quantity" min="0" />
-                <input type="text" id="product-subcategory" placeholder="Subcategory (optional)" />
 
                 <div style="margin-top: 15px;">
                     <label for="product-main-image">Main Product Image:</label>
@@ -106,6 +108,25 @@
                     </select>
                 </div>
                 <div id="products-list">Loading...</div>
+            </section>
+
+            <section id="categories" class="admin-section" style="display:none;">
+                <h2 id="category-form-title">Add Category</h2>
+                <input type="text" id="category-display-name" placeholder="Category Display Name (e.g., Paintings)" />
+                <input type="text" id="category-slug" placeholder="Category Slug (e.g., paintings)" />
+
+                <div id="current-category-image" style="margin-top: 5px;"></div>
+                <input type="file" id="category-image" accept="image/*" />
+
+                <div class="category-form-buttons">
+                    <button id="add-category-btn">Add Category</button>
+                    <button id="cancel-edit-category-btn" style="display:none;">Cancel Edit</button>
+                </div>
+                <p id="category-submit-success" style="color:green;"></p>
+                <p id="category-submit-error" style="color:red;"></p>
+
+                <h3>Existing Categories</h3>
+                <div id="categories-list">Loading...</div>
             </section>
 
             <section id="orders" class="admin-section" style="display:none;">

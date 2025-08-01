@@ -4,7 +4,8 @@ import {
     collection,
     getDocs,
     doc,
-    getDoc
+    getDoc,
+    query
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -17,17 +18,17 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Determine which page we are on based on the URL pathname
     if (window.location.pathname.endsWith("product-details.html")) {
         loadProductDetails();
     } else if (window.location.pathname.endsWith("artist-details.html")) {
         loadArtistDetails();
-    } else {
-        // This will be for the main store/products listing page
+    } else if (window.location.pathname.endsWith("products.html")) {
         initStorePage();
+    } else if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/") {
+        initHomePage();
+        populateShopDropdown();
     }
 
-    // --- Product Details Page Logic ---
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get("id");
@@ -37,20 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Fetch all artists to create a map for easy lookup
             const artistsSnapshot = await getDocs(collection(db, "artists"));
             const artistsMap = {};
             artistsSnapshot.forEach(doc => {
                 artistsMap[doc.id] = doc.data().name || "Unknown Artist";
             });
 
-            // Fetch the specific product details
             const productRef = doc(db, "products", productId);
             const productSnap = await getDoc(productRef);
 
             if (!productSnap.exists()) {
                 console.error("Product not found with ID:", productId);
-                // Optionally display a "Product not found" message on the page
                 document.querySelector(".product-details-heading").textContent = "Product Not Found";
                 document.querySelector("#product-details-artist-name").textContent = "";
                 document.querySelector(".product-details-list").innerHTML = "<li>This product could not be loaded.</li>";
@@ -60,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const product = productSnap.data();
 
-            // Populate product details elements
             const titleEl = document.querySelector(".product-details-heading");
             if (titleEl) titleEl.textContent = product.name || "Unnamed Product";
 
@@ -69,13 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const artistId = product.artistId;
                 const artistName = artistsMap[artistId] || "Unknown Artist";
                 artistNameEl.textContent = artistName;
-                // Update the href to link to artist-details.html with artistId
                 artistNameEl.href = `artist-details.html?id=${artistId}`;
             }
 
             const detailsListEl = document.querySelector(".product-details-list");
             if (detailsListEl) {
-                detailsListEl.innerHTML = ""; // Clear existing content
+                detailsListEl.innerHTML = "";
                 const detailLines = (product.description || "").split("\n").filter(line => line.trim() !== "");
                 detailLines.forEach(line => {
                     const li = document.createElement("li");
@@ -90,10 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 priceEls[1].textContent = `Stock: ${product.stock || 0}`;
             }
 
-            // --- Updated image section using only mainImage ---
             const galleryContainer = document.querySelector(".product-images-gallery");
             if (galleryContainer && product.mainImage) {
-                galleryContainer.innerHTML = ""; // Clear existing gallery content
+                galleryContainer.innerHTML = "";
 
                 const mainImage = document.createElement("img");
                 mainImage.className = "main-product-image";
@@ -111,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumb.dataset.full = product.mainImage;
 
                 thumb.addEventListener("click", () => {
-                    // Simple fade effect for image transition
                     mainImage.classList.add("fade-out");
                     setTimeout(() => {
                         mainImage.src = thumb.dataset.full;
@@ -127,108 +121,92 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (err) {
             console.error("Error loading product details:", err);
-            // Display a general error message on the page
             document.querySelector(".product-details-heading").textContent = "Error Loading Product";
             document.querySelector(".product-details-list").innerHTML = "<li>An error occurred while loading product information. Please try again later.</li>";
         }
     }
 
-     async function loadArtistDetails() {
-        console.log("loadArtistDetails function started."); // Log 1
+    async function loadArtistDetails() {
+        console.log("loadArtistDetails function started.");
 
         const urlParams = new URLSearchParams(window.location.search);
-        const artistId = urlParams.get("id"); // Get the artist ID from the URL
+        const artistId = urlParams.get("id");
 
-        console.log("Artist ID from URL:", artistId); // Log 2
+        console.log("Artist ID from URL:", artistId);
 
         if (!artistId) {
             console.error("No artist ID found in URL for artist details page.");
-            // Display an error message if no ID is provided
             document.querySelector('.artist-header h1').textContent = "Artist Not Found";
             document.querySelector('.artist-header h2').textContent = "";
             document.querySelector('.artist-bio').textContent = "Please ensure you have a valid artist ID in the URL (e.g., artist-details.html?id=YOUR_ARTIST_ID).";
-            // Make sure to select the img tag for placeholder if no ID
             const artistImageEl = document.getElementById("artist-profile-image");
             if (artistImageEl) artistImageEl.src = "https://via.placeholder.com/300?text=No+Artist+ID";
-            document.querySelector('.social-icons').innerHTML = ''; // Clear social icons
+            document.querySelector('.social-icons').innerHTML = '';
             return;
         }
 
         try {
-            // Fetch the specific artist document from Firestore
-            console.log(`Attempting to fetch artist with ID: ${artistId}`); // Log 3
+            console.log(`Attempting to fetch artist with ID: ${artistId}`);
             const artistRef = doc(db, "artists", artistId);
             const artistSnap = await getDoc(artistRef);
 
-            console.log("Artist Snapshot exists:", artistSnap.exists()); // Log 4
+            console.log("Artist Snapshot exists:", artistSnap.exists());
 
             if (!artistSnap.exists()) {
                 console.error(`Artist with ID ${artistId} not found in Firestore.`);
-                // Display a "Artist not found" message on the page
                 document.querySelector('.artist-header h1').textContent = "Artist Not Found";
                 document.querySelector('.artist-header h2').textContent = "";
                 document.querySelector('.artist-bio').textContent = `The artist with ID "${artistId}" does not exist or their profile is not available.`;
                 const artistImageEl = document.getElementById("artist-profile-image");
                 if (artistImageEl) artistImageEl.src = "https://via.placeholder.com/300?text=Artist+Not+Found";
-                document.querySelector('.social-icons').innerHTML = ''; // Clear social icons
+                document.querySelector('.social-icons').innerHTML = '';
                 return;
             }
 
             const artistData = artistSnap.data();
-            console.log("Artist Data fetched:", artistData); // Log 5
+            console.log("Artist Data fetched:", artistData);
 
-            // Populate artist details elements
             const artistNameH1 = document.querySelector('.artist-header h1');
             if (artistNameH1) artistNameH1.textContent = artistData.name || "Unknown Artist";
-            console.log("Artist Name Set:", artistNameH1 ? artistNameH1.textContent : "Not found"); // Log 6
+            console.log("Artist Name Set:", artistNameH1 ? artistNameH1.textContent : "Not found");
 
-            // Setting h2 (Meet the Artist) back to its original value or an empty string
             const artistHeaderH2 = document.querySelector('.artist-header h2');
             if (artistHeaderH2) artistHeaderH2.textContent = "Meet the Artist";
 
-
             const artistBioP = document.querySelector('.artist-bio');
             if (artistBioP) artistBioP.textContent = artistData.bio || "No biography available for this artist.";
-            console.log("Artist Bio Set:", artistBioP ? artistBioP.textContent.substring(0, 50) + "..." : "Not found"); // Log 7 (truncate bio for log)
+            console.log("Artist Bio Set:", artistBioP ? artistBioP.textContent.substring(0, 50) + "..." : "Not found");
 
-            const artistImage = document.getElementById('artist-profile-image'); // Using the ID as per our previous discussion
+            const artistImage = document.getElementById('artist-profile-image');
             if (artistImage) {
-                // Corrected: Use profileImage instead of profilePicture
                 artistImage.src = artistData.profileImage || "https://via.placeholder.com/300?text=No+Profile+Image";
             }
-            console.log("Artist Image Source Set to:", artistImage ? artistImage.src : "Not found"); // Log 8
+            console.log("Artist Image Source Set to:", artistImage ? artistImage.src : "Not found");
 
-
-            // Dynamically show/hide social icons based on Firestore data
             const socialIconsContainer = document.querySelector('.social-icons');
-            console.log("Social Icons Container:", socialIconsContainer); // Log 9
+            console.log("Social Icons Container:", socialIconsContainer);
 
             if (socialIconsContainer) {
-                // Get all social icon elements within the container
                 const socialIconElements = socialIconsContainer.querySelectorAll('.social-icon');
-                console.log("Found social icon elements (NodeList):", socialIconElements); // Log 10
+                console.log("Found social icon elements (NodeList):", socialIconElements);
 
                 socialIconElements.forEach(iconElement => {
-                    const dataLink = iconElement.dataset.link; // e.g., "instagram", "facebook", "email"
-                    console.log(`Processing icon with data-link: ${dataLink}`); // Log 11
+                    const dataLink = iconElement.dataset.link;
+                    console.log(`Processing icon with data-link: ${dataLink}`);
 
-                    // Check if the artistData has a 'socials' object and if it contains a link for this specific platform
                     if (dataLink && artistData.socials && artistData.socials[dataLink]) {
-                        // Special handling for email links (mailto:)
                         iconElement.href = (dataLink === "email") ? `mailto:${artistData.socials[dataLink]}` : artistData.socials[dataLink];
-                        iconElement.classList.remove('hidden'); // Show the icon by removing the 'hidden' class
-                        console.log(`-> Showing icon: ${dataLink}. Link set to: ${iconElement.href}. ClassList after remove:`, iconElement.classList.contains('hidden')); // Log 12
+                        iconElement.classList.remove('hidden');
+                        console.log(`-> Showing icon: ${dataLink}. Link set to: ${iconElement.href}. ClassList after remove:`, iconElement.classList.contains('hidden'));
                     } else {
-                        // If no link exists in Firestore for this platform, ensure the icon is hidden
                         iconElement.classList.add('hidden');
-                        console.log(`-> Hiding icon: ${dataLink}. ClassList after add:`, iconElement.classList.contains('hidden')); // Log 13
+                        console.log(`-> Hiding icon: ${dataLink}. ClassList after add:`, iconElement.classList.contains('hidden'));
                     }
                 });
             }
 
         } catch (err) {
-            console.error("Error loading artist details:", err); // Log 14 (catch-all error)
-            // Display a general error message on the page for unexpected errors
+            console.error("Error loading artist details:", err);
             document.querySelector('.artist-header h1').textContent = "Error Loading Artist";
             document.querySelector('.artist-header h2').textContent = "";
             document.querySelector('.artist-bio').textContent = "An unexpected error occurred while loading artist information. Please try again later.";
@@ -237,35 +215,226 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.social-icons').innerHTML = '';
         }
     }
-    
-    // --- Store Page Logic (for main products listing) ---
-    async function initStorePage() {
-        // Carousel logic for specific product cards (if present on the store page)
-        const productCards = document.querySelectorAll('.product-card'); // Assumes these are part of a carousel on the store page
+
+    async function initHomePage() {
+    const carouselGrid = document.querySelector('.carousel-grid');
+    if (!carouselGrid) {
+        console.warn("Carousel grid not found on homepage.");
+        return;
+    }
+
+    let categories = [];
+    let currentPage = 0;
+    const cardsPerPage = 4;
+
+    try {
+        const categoriesSnapshot = await getDocs(collection(db, "categories"));
+        categories = categoriesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        renderCategoryPage();
+
+        const prevBtn = document.getElementById('prevCategory');
+        const nextBtn = document.getElementById('nextCategory');
+
+        prevBtn?.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                renderCategoryPage();
+            }
+        });
+
+        nextBtn?.addEventListener('click', () => {
+            const maxPage = Math.ceil(categories.length / cardsPerPage) - 1;
+            if (currentPage < maxPage) {
+                currentPage++;
+                renderCategoryPage();
+            }
+        });
+
+        function renderCategoryPage() {
+            carouselGrid.innerHTML = "";
+            const start = currentPage * cardsPerPage;
+            const end = start + cardsPerPage;
+            const visibleCategories = categories.slice(start, end);
+
+            visibleCategories.forEach(category => {
+                const categorySlug = category.slug || category.id;
+                const categoryDisplayName = category.displayName || categorySlug;
+                const categoryImage = category.image || 'images/placeholder-category.png';
+
+                const card = document.createElement("a");
+                card.href = `products.html?category=${categorySlug.toLowerCase()}`;
+                card.className = "category-item";
+
+                card.innerHTML = `
+                    <div class="product-card">
+                    <img class="product-image" src="${categoryImage}" alt="${categoryDisplayName}" loading="lazy">
+                    <p class="category-name">${categoryDisplayName}</p>
+                    <div/>
+                `;
+                carouselGrid.appendChild(card);
+            });
+
+            updateCategoryArrows();
+        }
+
+        function updateCategoryArrows() {
+            const maxPage = Math.ceil(categories.length / cardsPerPage) - 1;
+
+            const prevBtns = [document.getElementById('prevCategory'), document.getElementById('prevCategorySmall')];
+            const nextBtns = [document.getElementById('nextCategory'), document.getElementById('nextCategorySmall')];
+
+            prevBtns.forEach(btn => {
+                if (!btn) return;
+                btn.style.opacity = currentPage === 0 ? '0.5' : '1';
+                btn.style.cursor = currentPage === 0 ? 'not-allowed' : 'pointer';
+            });
+
+            nextBtns.forEach(btn => {
+                if (!btn) return;
+                btn.style.opacity = currentPage === maxPage ? '0.5' : '1';
+                btn.style.cursor = currentPage === maxPage ? 'not-allowed' : 'pointer';
+            });
+        }
+
+    } catch (error) {
+        console.error("Error loading homepage categories from Firestore:", error);
+        carouselGrid.innerHTML = '<p>Error loading categories. Please try again later.</p>';
+    }
+}
+    async function populateShopDropdown() {
+        const dropdownMenu = document.querySelector(".navbar-nav .dropdown-menu");
+        if (!dropdownMenu) {
+            console.warn("Shop dropdown menu not found.");
+            return;
+        }
+
+        const allProductsLi = dropdownMenu.querySelector('li > a[href="products.html"]')?.parentElement;
+        const hrLi = dropdownMenu.querySelector('li > hr.dropdown-divider')?.parentElement;
+
+        let currentItem = dropdownMenu.firstElementChild;
+        while (currentItem) {
+            if (currentItem !== allProductsLi && currentItem !== hrLi && !currentItem.querySelector('hr.dropdown-divider')) {
+                const nextItem = currentItem.nextElementSibling;
+                dropdownMenu.removeChild(currentItem);
+                currentItem = nextItem;
+            } else {
+                currentItem = currentItem.nextElementSibling;
+            }
+        }
+
+        try {
+            const categoriesCollectionRef = collection(db, "categories");
+            const q = query(categoriesCollectionRef);
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                console.warn("No categories found to populate shop dropdown.");
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            snapshot.forEach(docSnap => {
+                const category = docSnap.data();
+                const categorySlug = category.slug || docSnap.id;
+                const categoryDisplayName = category.displayName || category.slug || "Unnamed Category";
+
+                const li = document.createElement("li");
+                const a = document.createElement("a");
+                a.classList.add("dropdown-item");
+                a.href = `products.html?category=${categorySlug.toLowerCase()}`;
+                a.textContent = categoryDisplayName;
+                li.appendChild(a);
+                fragment.appendChild(li);
+            });
+
+            if (hrLi) {
+                dropdownMenu.insertBefore(fragment, hrLi);
+            } else if (allProductsLi) {
+                dropdownMenu.insertBefore(fragment, allProductsLi);
+            } else {
+                dropdownMenu.appendChild(fragment);
+            }
+
+        } catch (error) {
+            console.error("Error populating shop dropdown from Firestore:", error);
+        }
+    }
+
+    function initCarouselLogic() {
+        const carouselGrid = document.querySelector('.carousel-grid');
+        if (!carouselGrid) return;
 
         const prevButtons = [
             document.getElementById('prevCategory'),
             document.getElementById('prevCategorySmall')
-        ].filter(Boolean); // Filter out null if elements don't exist
+        ].filter(Boolean);
 
         const nextButtons = [
             document.getElementById('nextCategory'),
             document.getElementById('nextCategorySmall')
-        ].filter(Boolean); // Filter out null if elements don't exist
+        ].filter(Boolean);
 
-        const cardsToShow = 4; // Number of cards to display in the carousel
+        const scrollAmount = 300;
+
+        const updateCarouselButtons = () => {
+            prevButtons.forEach(btn => {
+                btn.style.opacity = carouselGrid.scrollLeft === 0 ? '0.5' : '1';
+                btn.style.cursor = carouselGrid.scrollLeft === 0 ? 'not-allowed' : 'pointer';
+            });
+
+            nextButtons.forEach(btn => {
+                const isAtEnd = Math.round(carouselGrid.scrollLeft + carouselGrid.clientWidth) >= carouselGrid.scrollWidth;
+                btn.style.opacity = isAtEnd ? '0.5' : '1';
+                btn.style.cursor = isAtEnd ? 'not-allowed' : 'pointer';
+            });
+        };
+
+        nextButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                carouselGrid.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            });
+        });
+
+        prevButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                carouselGrid.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            });
+        });
+
+        carouselGrid.addEventListener('scroll', updateCarouselButtons);
+        setTimeout(updateCarouselButtons, 100);
+    }
+
+    async function initStorePage() {
+        const productCards = document.querySelectorAll('.product-card');
+
+        const prevButtons = [
+            document.getElementById('prevCategory'),
+            document.getElementById('prevCategorySmall')
+        ].filter(Boolean);
+
+        const nextButtons = [
+            document.getElementById('nextCategory'),
+            document.getElementById('nextCategorySmall')
+        ].filter(Boolean);
+
+        const cardsToShow = 4;
         let currentCarouselPage = 0;
         const totalCarouselPages = Math.ceil(productCards.length / cardsToShow);
 
         function updateCarousel() {
-            productCards.forEach(card => card.style.display = 'none'); // Hide all cards initially
+            productCards.forEach(card => card.style.display = 'none');
             const startIndex = currentCarouselPage * cardsToShow;
             const endIndex = startIndex + cardsToShow;
             for (let i = startIndex; i < endIndex && i < productCards.length; i++) {
-                productCards[i].style.display = 'inline-block'; // Display cards for the current page
+                productCards[i].style.display = 'inline-block';
             }
 
-            // Update button opacity/cursor based on carousel position
             prevButtons.forEach(btn => {
                 btn.style.opacity = currentCarouselPage === 0 ? '0.5' : '1';
                 btn.style.cursor = currentCarouselPage === 0 ? 'not-allowed' : 'pointer';
@@ -277,7 +446,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Add event listeners for carousel navigation
         nextButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (currentCarouselPage < totalCarouselPages - 1) {
@@ -296,10 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        updateCarousel(); // Initial render of carousel
-        window.addEventListener('resize', updateCarousel); // Re-render on resize
+        updateCarousel();
+        window.addEventListener('resize', updateCarousel);
 
-        // Product Grid and Pagination Logic
         const grid = document.getElementById("productsGrid");
         const paginationContainer = document.getElementById("paginationControls");
 
@@ -307,14 +474,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const artistFilter = document.getElementById('artistFilter');
         const sortOptions = document.getElementById('sortOptions');
 
-        const productsPerPage = 12; // Number of products per page in the main grid
+        const productsPerPage = 12;
         let currentFirestorePage = 1;
-        let allProducts = []; // Stores all fetched products
+        let allProducts = [];
 
-        let artistsMap = {}; // Map to store artist IDs to names
-        let categoriesSet = new Set(); // Set to store unique categories
+        let artistsMap = {};
+        let categoriesSet = new Set();
 
-        // Fetch artists data from Firestore
         async function fetchArtists() {
             const artistSnapshot = await getDocs(collection(db, "artists"));
             artistSnapshot.forEach(doc => {
@@ -323,9 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Fetch products data from Firestore
         async function fetchProducts() {
-            await fetchArtists(); // Ensure artists are fetched before products
+            await fetchArtists();
 
             const querySnapshot = await getDocs(collection(db, "products"));
             allProducts = querySnapshot.docs.map(doc => {
@@ -335,18 +500,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             });
 
-            populateFilters(); // Populate dropdown filters
-            filterAndRender(); // Initial render of filtered products
+            populateFilters();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialCategory = urlParams.get('category');
+            const initialArtist = urlParams.get('artist');
+
+            if (categoryFilter && initialCategory) {
+                categoryFilter.value = initialCategory;
+            }
+            if (artistFilter && initialArtist) {
+                artistFilter.value = initialArtist;
+            }
+
+            filterAndRender();
         }
 
-        // Populate category and artist filter dropdowns
         function populateFilters() {
             if (!categoryFilter || !artistFilter) return;
 
             categoryFilter.innerHTML = `<option value="">All Categories</option>`;
             artistFilter.innerHTML = `<option value="">All Artists</option>`;
 
-            // Collect unique categories from products
             categoriesSet = new Set(allProducts.map(p => p.category).filter(Boolean));
 
             categoriesSet.forEach(category => {
@@ -356,7 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryFilter.appendChild(opt);
             });
 
-            // Populate artist filter using the artistsMap
             Object.entries(artistsMap).forEach(([id, name]) => {
                 const opt = document.createElement('option');
                 opt.value = id;
@@ -365,7 +539,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Filter and sort products based on selected options, then render
         function filterAndRender() {
             if (!categoryFilter || !artistFilter || !sortOptions) return;
 
@@ -373,39 +546,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedArtistId = artistFilter.value;
             const selectedSort = sortOptions.value;
 
-            // Apply filters
             let filtered = allProducts.filter(product => {
                 const categoryMatch = !selectedCategory || product.category === selectedCategory;
                 const artistMatch = !selectedArtistId || product.artistId === selectedArtistId;
                 return categoryMatch && artistMatch;
             });
 
-            // Apply sorting
             if (selectedSort === 'name-asc') {
                 filtered.sort((a, b) => a.name.localeCompare(b.name));
             } else if (selectedSort === 'name-desc') {
-                filtered.sort((a, b) => b.name.localeCompare(a.name));
+                filtered.sort((a, b) => b.name.localeCompare(b.name));
             } else if (selectedSort === 'price-low-high') {
                 filtered.sort((a, b) => (a.priceZar || 0) - (b.priceZar || 0));
             } else if (selectedSort === 'price-high-low') {
                 filtered.sort((a, b) => (b.priceZar || 0) - (a.priceZar || 0));
             }
 
-            renderFilteredPage(filtered, 1); // Render the first page of filtered results
+            renderFilteredPage(filtered, 1);
         }
 
-        // Render products for the current page
         function renderFilteredPage(products, page) {
             currentFirestorePage = page;
             if (!grid) return;
-            grid.innerHTML = ""; // Clear existing product cards
+            grid.innerHTML = "";
 
             const start = (page - 1) * productsPerPage;
             const end = start + productsPerPage;
             const productsToShow = products.slice(start, end);
 
             productsToShow.forEach(product => {
-                const mainImage = product.mainImage || "placeholder.jpg"; // Default image if none
+                const mainImage = product.mainImage || "placeholder.jpg";
                 const artistName = artistsMap[product.artistId] || "Unknown Artist";
 
                 const card = document.createElement("div");
@@ -421,16 +591,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 grid.appendChild(card);
             });
 
-            renderFilteredPagination(products); // Update pagination buttons
-            updateFilteredChevronState(products); // Update chevron button states
+            renderFilteredPagination(products);
+            updateFilteredChevronState(products);
         }
 
-        // Render pagination buttons
         function renderFilteredPagination(filteredProducts) {
             if (!paginationContainer) return;
 
             const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-            paginationContainer.innerHTML = ""; // Clear existing pagination
+            paginationContainer.innerHTML = "";
 
             for (let i = 1; i <= totalPages; i++) {
                 const btn = document.createElement("button");
@@ -447,9 +616,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Update state of pagination chevron buttons (prev/next)
         function updateFilteredChevronState(filteredProducts) {
             const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+            const prevFirestoreBtn = document.getElementById('prevCategory');
+            const nextFirestoreBtn = document.getElementById('nextCategory');
 
             if (prevFirestoreBtn) {
                 prevFirestoreBtn.style.opacity = currentFirestorePage === 1 ? '0.5' : '1';
@@ -462,11 +633,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Get chevron buttons for main product grid pagination
         const prevFirestoreBtn = document.getElementById('prevCategory');
         const nextFirestoreBtn = document.getElementById('nextCategory');
 
-        // Add event listeners for main product grid chevron navigation
         if (prevFirestoreBtn) {
             prevFirestoreBtn.addEventListener('click', () => {
                 if (currentFirestorePage > 1) {
@@ -497,11 +666,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Add event listeners for filter and sort dropdowns
         if (categoryFilter) categoryFilter.addEventListener('change', filterAndRender);
         if (artistFilter) artistFilter.addEventListener('change', filterAndRender);
         if (sortOptions) sortOptions.addEventListener('change', filterAndRender);
 
-        fetchProducts(); // Initial fetch of all products and artists when store page loads
+        fetchProducts();
     }
 });
