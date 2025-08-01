@@ -236,22 +236,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderCategoryPage();
 
-        const prevBtn = document.getElementById('prevCategory');
-        const nextBtn = document.getElementById('nextCategory');
+        // Get all button elements (main and small)
+        const prevBtns = [
+            document.getElementById('prevCategory'),
+            document.getElementById('prevCategorySmall')
+        ].filter(Boolean); // Filter out null elements
 
-        prevBtn?.addEventListener('click', () => {
-            if (currentPage > 0) {
-                currentPage--;
-                renderCategoryPage();
-            }
+        const nextBtns = [
+            document.getElementById('nextCategory'),
+            document.getElementById('nextCategorySmall')
+        ].filter(Boolean);
+
+        // Add event listeners to all prev buttons
+        prevBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    renderCategoryPage();
+                }
+            });
         });
 
-        nextBtn?.addEventListener('click', () => {
-            const maxPage = Math.ceil(categories.length / cardsPerPage) - 1;
-            if (currentPage < maxPage) {
-                currentPage++;
-                renderCategoryPage();
-            }
+        // Add event listeners to all next buttons
+        nextBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const maxPage = Math.ceil(categories.length / cardsPerPage) - 1;
+                if (currentPage < maxPage) {
+                    currentPage++;
+                    renderCategoryPage();
+                }
+            });
         });
 
         function renderCategoryPage() {
@@ -284,17 +298,22 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateCategoryArrows() {
             const maxPage = Math.ceil(categories.length / cardsPerPage) - 1;
 
-            const prevBtns = [document.getElementById('prevCategory'), document.getElementById('prevCategorySmall')];
-            const nextBtns = [document.getElementById('nextCategory'), document.getElementById('nextCategorySmall')];
+            const allPrevBtns = [
+                document.getElementById('prevCategory'),
+                document.getElementById('prevCategorySmall')
+            ].filter(Boolean);
 
-            prevBtns.forEach(btn => {
-                if (!btn) return;
+            const allNextBtns = [
+                document.getElementById('nextCategory'),
+                document.getElementById('nextCategorySmall')
+            ].filter(Boolean);
+
+            allPrevBtns.forEach(btn => {
                 btn.style.opacity = currentPage === 0 ? '0.5' : '1';
                 btn.style.cursor = currentPage === 0 ? 'not-allowed' : 'pointer';
             });
 
-            nextBtns.forEach(btn => {
-                if (!btn) return;
+            allNextBtns.forEach(btn => {
                 btn.style.opacity = currentPage === maxPage ? '0.5' : '1';
                 btn.style.cursor = currentPage === maxPage ? 'not-allowed' : 'pointer';
             });
@@ -305,6 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         carouselGrid.innerHTML = '<p>Error loading categories. Please try again later.</p>';
     }
 }
+
     async function populateShopDropdown() {
         const dropdownMenu = document.querySelector(".navbar-nav .dropdown-menu");
         if (!dropdownMenu) {
