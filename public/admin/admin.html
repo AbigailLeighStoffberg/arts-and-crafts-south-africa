@@ -124,33 +124,6 @@
         </div>
     </section>
 
-    <!-- Script to enable tab switching -->
-    <script>
-        window.showSection = function (id) {
-            const sections = document.querySelectorAll(".admin-section");
-            sections.forEach(section => {
-                section.style.display = section.id === id ? "block" : "none";
-            });
-
-            const buttons = document.querySelectorAll("nav button");
-            buttons.forEach(button => {
-                if (button.dataset.section === id) {
-                    button.classList.add("active");
-                } else {
-                    button.classList.remove("active");
-                }
-            });
-        };
-
-        document.querySelectorAll("nav button").forEach(button => {
-            button.addEventListener("click", () => {
-                const section = button.dataset.section;
-                window.showSection(section);
-            });
-        });
-    </script>
-
-    <!-- Your module script entry point -->
     <script type="module" src="main.js"></script>
 </body>
 
