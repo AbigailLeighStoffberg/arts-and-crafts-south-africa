@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat+Brush&family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous" />
+    <link rel="stylesheet" href="style.css?v=5" />
+
+    <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.min.css" />
+
+    <title>Shopping Cart</title>
+</head>
+
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg bg-body-branding">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="index.html">Arts and Crafts South Africa</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" aria-current="page" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="artists.html">Artists</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Shop
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="products.html">All Products</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+                <div class="d-flex align-items-center">
+                    <a href="#" class="nav-link text-white me-3"><i class="far fa-heart"></i></a>
+                    <a href="/public/cart-and-checkout.html" class="nav-link text-white me-3"><i
+                            class="fas fa-shopping-cart"></i></a>
+                    <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+    <section class="cart-container">
+        <div class="cart-wrapper">
+            <!-- Cart Section -->
+            <div class="cart-column cart-left">
+                <h2 class="cart-title">My Cart</h2>
+
+                <!-- Cart Item -->
+                <div class="cart-item">
+                    <img src="https://via.placeholder.com/70" alt="Framed painting" />
+                    <div class="item-details">
+                        <p class="item-title">Framed painting of a house</p>
+                        <p class="item-sub">Framed<br />46x61cm</p>
+                    </div>
+                    <input type="number" value="1" class="qty-input" />
+                    <p class="item-price">R499</p>
+                    <div class="remove-item"><i class="fa-solid fa-trash-can"></i></div>
+                </div>
+
+                <!-- Cart Item -->
+                <div class="cart-item">
+                    <img src="https://via.placeholder.com/70" alt="Art print" />
+                    <div class="item-details">
+                        <p class="item-title">Abstract print</p>
+                        <p class="item-sub">Framed<br />A3 size</p>
+                    </div>
+                    <input type="number" value="2" class="qty-input" />
+                    <p class="item-price">R499</p>
+                    <div class="remove-item"><i class="fa-solid fa-trash-can"></i></div>
+                </div>
+
+                <div class="update-cart-container">
+                    <button class="btn update-cart-btn">Update Cart</button>
+                </div>
+
+                <div class="cart-bottom">
+                    <span class="subtotal-text">Subtotal: </span>
+                    <span class="subtotal-price" id="subtotal">R1497</span>
+                </div>
+            </div>
+
+            <!-- Checkout Section -->
+            <div class="cart-column cart-right">
+                <h2 class="checkout-title">Checkout</h2>
+
+                <div class="checkout-summary">
+                    <div class="checkout-row">
+                        <span>Subtotal</span>
+                        <span>R1497</span>
+                    </div>
+
+                    <div class="checkout-row">
+                        <label for="shipping">Shipping</label>
+                        <div class="shipping-row">
+                            <select class="shipping" name="shipping" id="shipping">
+                                <option value="za" data-price="100">South Africa</option>
+                                <option value="ng" data-price="200">Africa (Other)</option>
+                                <option value="us" data-price="350">United States</option>
+                                <option value="eu" data-price="300">Europe</option>
+                                <option value="other" data-price="400">Other</option>
+                            </select>
+                            <span class="shipping-price" id="shipping-price">R100</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-row total-row">
+                        <strong>Total</strong>
+                        <strong id="total-price">R1597</strong>
+                    </div>
+
+                    <p class="info">Ready to checkout? Enter your shipping details and proceed to payment 💜</p>
+                </div>
+
+                <form class="checkout-form">
+                    <div class="form-group">
+                        <label>First Name*</label>
+                        <input type="text" placeholder="John" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name*</label>
+                        <input type="text" placeholder="Doe" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Email*</label>
+                        <input type="email" placeholder="john@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone number*</label>
+                        <input id="full-phone" type="tel" placeholder="712 345 678" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Country*</label>
+                        <input type="text" placeholder="South Africa" required />
+                    </div>
+                    <div class="form-group">
+                        <label>City*</label>
+                        <input type="text" placeholder="Cape Town" required />
+                    </div>
+                    <div class="form-group">
+                        <label>State/Province/Region*</label>
+                        <input type="text" placeholder="Western Cape" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Postal Code/Zip Code*</label>
+                        <input type="text" placeholder="8001" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Street Address*</label>
+                        <input type="text" placeholder="123 Long Street" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Address Line 2</label>
+                        <input type="text" placeholder="Apartment, suite, etc." />
+                    </div>
+                    <div class="form-group">
+                        <label>Order Notes / Special Instructions</label>
+                        <textarea rows="3" placeholder="Leave at reception, gift wrap, etc."></textarea>
+                    </div>
+                    <div class="proceed-btn-container">
+                        <button type="submit" class="btn proceed-btn">Proceed to Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <a class="footer-links" href="mailto:arts.crafts.sa@gmail.com">
+                arts.crafts.sa@gmail.com
+            </a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"></script>
+    
+    <script type="module" src="scripts.js?v=5"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+        
+</body>
+
+</html>

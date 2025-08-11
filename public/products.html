@@ -20,37 +20,56 @@
 </head>
 
 <body>
+<header>
     <nav class="navbar navbar-expand-lg bg-body-branding">
         <div class="container-fluid">
-            <a class="navbar-brand text-white" href="#">Arts and Crafts South Africa</a>
+            <a class="navbar-brand text-white" href="index.html">Arts and Crafts South Africa</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent">
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active text-white" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#">Artists</a></li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active text-white" aria-current="page" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="artists.html">Artists</a>
+                    </li>
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" role="button"
-                            data-bs-toggle="dropdown">Shop</a>
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Shop
+                        </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
                             <li>
-                                <hr class="dropdown-divider" />
+                                <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            <li><a class="dropdown-item" href="products.html">All Products</a></li>
                         </ul>
                     </li>
+
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" />
-                    <button class="btn btn-outline-branding" type="submit">Search</button>
-                </form>
+
+                <div class="d-flex align-items-center">
+                    <a href="#" class="nav-link text-white me-3"><i class="far fa-heart"></i></a>
+                    <a href="/public/cart-and-checkout.html" class="nav-link text-white me-3"><i
+                            class="fas fa-shopping-cart"></i></a>
+                    <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
+</header>
 
     <h2 class="products-heading">Our Art Collection</h2>
     <h3 class="products-sub-heading">Authentic, handcrafted, and proudly South African</h3>

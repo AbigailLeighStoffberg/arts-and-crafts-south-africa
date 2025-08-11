@@ -2,8 +2,9 @@ import { setupAuth } from './auth.js';
 import { setupArtistForm, loadArtists, populateArtistDropdown } from './artists.js';
 import { setupProductForm, loadProducts, populateArtistFilter, populateCategoriesDropdown } from './products.js';
 import { setupCategoryForm, loadCategories, clearCategoryForm } from './categories.js';
+import { loadOrders } from './orders.js'; // <-- ADD THIS LINE
 
-window.populateProductDropdowns = populateCategoriesDropdown; // Expose populateCategoriesDropdown globally
+window.populateProductDropdowns = populateCategoriesDropdown;
 
 function showSection(sectionId) {
     document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
@@ -30,6 +31,8 @@ function showSection(sectionId) {
     } else if (sectionId === "categories") {
         loadCategories();
         clearCategoryForm();
+    } else if (sectionId === "orders") { // <-- ADD THIS NEW CONDITION
+        loadOrders();
     }
 }
 
