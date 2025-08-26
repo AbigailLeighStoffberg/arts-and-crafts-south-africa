@@ -1048,6 +1048,127 @@ body.artist-details main {
     margin: 10px;
 }
 
+.login-page-body {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+}
+
+.half-page-bg {
+    flex: 1;
+    background-image: url('images/login-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.half-page-color {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem; 
+}
+
+.tab {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    height: 50px;
+    margin-bottom: 2rem;
+    border-radius: 20px;
+    background-color: var(--color-lightest);
+    overflow: hidden;
+}
+
+.tablinks {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: var(--color-darkest);
+    border-radius: 20px;
+    padding: 5px 20px;
+    transition: font-size 0.1s;
+}
+
+.tablinks:hover {
+    font-size: 1.1rem;
+}
+
+.tablinks.active {
+    background-color: var(--color-dark);
+    color: white;
+}
+
+.tabcontent {
+    width: 100%;
+    max-width: 400px;
+}
+
+.tabcontent form {
+    display: flex;
+    flex-direction: column;
+}
+
+.tabcontent label {
+    font-family: 'Poppins', sans-serif;
+    color: var(--color-darkest);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.tabcontent input[type="text"],
+.tabcontent input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-light);
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+.wrap {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.wrap button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--highlight-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.wrap button:hover {
+    background-color: var(--highlight-color-dark);
+}
+
+.logo-image {
+    max-width: 300px;
+    padding-bottom: 30px;
+}
+
 /* ----------------------------
     ≤ 480px (Mobile - Smallest)
 ----------------------------- */
@@ -1425,5 +1546,29 @@ body.artist-details main {
         align-items: center;
         gap: 8px;
         /* Smaller gap when stacked */
+    }
+}
+
+/* --- Login Page Specific Responsiveness --- */
+@media (max-width: 768px) {
+    .login-page-body {
+        display: block;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .half-page-bg {
+        display: none;
+    }
+
+    .logo-image {
+        max-width: 200px;
+        padding-bottom: 0;
+    }
+
+    .half-page-color {
+        flex: 1;
+        width: 100%;
+        padding: 1rem;
     }
 }
