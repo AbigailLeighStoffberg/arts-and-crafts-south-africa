@@ -1132,6 +1132,7 @@ body.artist-details main {
 }
 
 .tabcontent input[type="text"],
+.tabcontent input[type="email"],
 .tabcontent input[type="password"] {
     width: 100%;
     padding: 10px;

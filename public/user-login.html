@@ -16,7 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css?v=6">
-    <title>Document</title>
+    <title>Login - Arts and Crafts South Africa</title>
 </head>
 
 <body>
@@ -73,69 +73,88 @@
 
     <main class="login-page-body">
 
-    <div class="half-page-bg"></div>
+        <div class="half-page-bg"></div>
 
-    <div class="half-page-color">
+        <div class="half-page-color">
 
-        <div class="login-logo">
-            <img class="logo-image" src="images/logo.png" alt="Arts and Crafts South Africa Logo" />
+            <div class="login-logo">
+                <img class="logo-image" src="images/logo.png" alt="Arts and Crafts South Africa Logo" />
+            </div>
+
+            <div class="tab">
+                <button class="tablinks" onclick="openForm(event, 'Login')" id="defaultOpen">Login</button>
+                <button class="tablinks" onclick="openForm(event, 'Signup')">Signup</button>
+            </div>
+
+            <div id="Login" class="tabcontent">
+                <form id="login-form">
+                    <label for="login-email">
+                        Email:
+                    </label>
+                    <input type="email" id="login-email" name="email" placeholder="Enter your Email" required>
+
+                    <label for="login-password">
+                        Password:
+                    </label>
+                    <input type="password" id="login-password" name="password" placeholder="Enter your Password"
+                        required>
+
+                    <div class="wrap">
+                        <button type="submit">
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="Signup" class="tabcontent">
+                <form id="signup-form">
+                    <label for="signup-name">
+                        Name:
+                    </label>
+                    <input type="text" id="signup-name" name="name" placeholder="Enter your Name" required>
+
+                    <label for="signup-email">
+                        Email:
+                    </label>
+                    <input type="email" id="signup-email" name="email" placeholder="Enter your Email" required>
+
+                    <label for="signup-password">
+                        Password:
+                    </label>
+                    <input type="password" id="signup-password" name="password" placeholder="Enter your Password"
+                        required>
+
+                    <label for="signup-confirm-password">
+                        Confirm Password:
+                    </label>
+                    <input type="password" id="signup-confirm-password" name="confirm-password"
+                        placeholder="Confirm your Password" required>
+
+                    <div class="wrap">
+                        <button type="submit">
+                            Signup
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <p id="error-message" class="text-danger mt-3" style="display: none;"></p>
         </div>
-
-        <div class="tab">
-            <button class="tablinks" onclick="openForm(event, 'Login')" id="defaultOpen">Login</button>
-            <button class="tablinks" onclick="openForm(event, 'Signup')">Signup</button>
-        </div>
-
-        <div id="Login" class="tabcontent">
-            <form action="">
-                <label for="first">
-                    Email:
-                </label>
-                <input type="text" id="login-email" name="first" placeholder="Enter your Email" required>
-            
-                <label for="password">
-                    Password:
-                </label>
-                <input type="password" id="login-password" name="password" placeholder="Enter your Password" required>
-            
-                <div class="wrap">
-                    <button type="submit">
-                        Login
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <div id="Signup" class="tabcontent">
-            <form action="">
-                <label for="first">
-                    Email:
-                </label>
-                <input type="text" id="signup-email" name="first" placeholder="Enter your Email" required>
-            
-                <label for="password">
-                    Password:
-                </label>
-                <input type="password" id="signup-password" name="password" placeholder="Enter your Password" required>
-            
-                <div class="wrap">
-                    <button type="submit">
-                        Signup
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     </main>
 
-<footer>
-    <div class="footer-container">
-        <a class="footer-links" href="mailto:arts.crafts.sa@gmail.com">
-            arts.crafts.sa@gmail.com
-        </a>
-    </div>
-</footer>
+    <footer>
+        <div class="footer-container">
+            <a class="footer-links" href="mailto:arts.crafts.sa@gmail.com">
+                arts.crafts.sa@gmail.com
+            </a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
 
     <script>
         function openForm(evt, formName) {
@@ -152,16 +171,9 @@
             evt.currentTarget.className += " active";
         }
 
-        // Get the element with id="defaultOpen" and click on it
         document.getElementById("defaultOpen").click();
     </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
-    crossorigin="anonymous"></script>
-
-<script type="module" src="scripts.js?v=6"></script>
-
+    <script type="module" src="scripts.js?v=6"></script>
 </body>
 
 </html>
