@@ -9,6 +9,14 @@ import {
     query,
     setDoc // We need to import setDoc to save a new document
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// Add these imports
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
 // --- Firebase Configuration and Initialization ---
 const firebaseConfig = {
@@ -18,6 +26,85 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+// Add this line
+const auth = getAuth(app);
+
+
+// --- Add this entire section for form handling ---
+// Get form elements
+const loginForm = document.getElementById('login-form');
+const signupForm = document.getElementById('signup-form');
+const errorMessageDisplay = document.getElementById('error-message');
+
+// Function to display an error message
+const displayError = (message) => {
+    errorMessageDisplay.textContent = message;
+    errorMessageDisplay.style.display = 'block';
+};
+
+// Function to clear the error message
+const clearError = () => {
+    errorMessageDisplay.textContent = '';
+    errorMessageDisplay.style.display = 'none';
+};
+
+// Handle Signup Form Submission
+if (signupForm) {
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        clearError();
+
+        const name = signupForm['signup-name'].value;
+        const email = signupForm['signup-email'].value;
+        const password = signupForm['signup-password'].value;
+        const confirmPassword = signupForm['signup-confirm-password'].value;
+
+        if (password !== confirmPassword) {
+            displayError("Passwords do not match. Please try again.");
+            return;
+        }
+
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // Update the user's profile with their display name
+                return updateProfile(user, { displayName: name });
+            })
+            .then(() => {
+                console.log("User signed up successfully and profile updated!");
+                // Redirect to the home page after successful signup
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                displayError(errorMessage);
+            });
+    });
+}
+
+// Handle Login Form Submission
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        clearError();
+
+        const email = loginForm['login-email'].value;
+        const password = loginForm['login-password'].value;
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed in successfully
+                const user = userCredential.user;
+                console.log("User logged in:", user);
+                // Redirect the user to the home page or dashboard
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                displayError(errorMessage);
+            });
+    });
+}
 
 // Declare global variable for the phone input instance
 let iti;
