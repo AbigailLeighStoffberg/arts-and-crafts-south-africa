@@ -2,25 +2,24 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Cache-Control" content="no-store" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat+Brush&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous" />
-    <link rel="stylesheet" href="style.css?v=6" />
+        href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat+Brush&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
-    <title>Our Art Collection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=10">
+    <title>Contact Us - Arts and Crafts South Africa</title>
 </head>
 
-<body class="artist-details">
+<body>
+    <!-- NAVBAR (Bootstrap only) -->
     <header>
         <nav class="navbar navbar-expand-lg bg-body-branding">
             <div class="container-fluid">
@@ -35,7 +34,7 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item">
-                            <a class="nav-link active text-white" aria-current="page" href="index.html">Home</a>
+                            <a class="nav-link text-white" href="index.html">Home</a>
                         </li>
 
                         <li class="nav-item">
@@ -48,69 +47,87 @@
                                 Shop
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
                                 <li><a class="dropdown-item" href="products.html">All Products</a></li>
                             </ul>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link active text-white" aria-current="page" href="contact.html">Contact</a>
+                        </li>
                     </ul>
 
-                    <div class="d-flex align-items-center">
-                        <a href="#" class="nav-link text-white me-3"><i class="far fa-heart"></i></a>
-                        <a href="cart-and-checkout.html" class="nav-link text-white me-3"><i
-                                class="fas fa-shopping-cart"></i></a>
-                        <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
+                    <div class="dropdown">
+                        <a class="nav-link text-white me-3 dropdown-toggle" href="#" role="button" id="account-dropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="account-dropdown">
+                            <li><a class="dropdown-item" id="dropdown-login-link" href="#"
+                                    onclick="openForm(event, 'Login');">Login</a></li>
+                            <li><a class="dropdown-item" id="dropdown-signup-link" href="#"
+                                    onclick="openForm(event, 'Signup');">Signup</a></li>
+                            <li><a class="dropdown-item d-none" id="dropdown-my-account-link" href="my-account.html">My
+                                    Account</a></li>
+                            <li>
+                                <hr class="dropdown-divider d-none" id="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item d-none" id="dropdown-logout-button" href="#">Logout</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
 
-    <main class="artist-main-content">
-        <div class="artist-header">
-            <h1>Get in touch</h1>
-        </div>
-        <div class="artist-details-wrapper">
-            <div class="artist-image-container">
-                <img class="artist-details-image" id="artist-profile-image" alt="Artist profile image" />
+    <!-- MAIN CONTENT (Custom CSS only) -->
+    <main class="contact-page">
+        <div class="contact-container">
+            <div class="contact-header">
+                <h1>Contact Us</h1>
+                <p>We’d love to hear from you! Send us a message below.</p>
             </div>
-            <div class="artist-description-box">
-                <p class="artist-bio"></p>
-                <div class="social-icons">
-                    <a href="#" class="social-icon hidden" data-link="instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="twitter"><i class="fab fa-x-twitter"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="pinterest"><i class="fab fa-pinterest-p"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="linkedin"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="youtube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="tiktok"><i class="fab fa-tiktok"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="artstation"><i class="fab fa-artstation"></i></a>
-                    <a href="mailto:arts.crafts.sa@gmail.com" class="social-icon hidden" data-link="email"><i
-                            class="far fa-envelope"></i></a>
-                    <a href="#" class="social-icon hidden" data-link="website"><i class="fas fa-globe"></i></a>
-                </div>
+
+            <!-- Contact Form -->
+            <form id="contact-form" class="contact-form">
+                <label for="name">Your Name</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
+
+                <label for="email">Your Email</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+
+                <label for="message">Your Message</label>
+                <textarea id="message" rows="5" placeholder="Write your message here" required></textarea>
+
+                <button type="submit" class="btn-custom">Send Message</button>
+            </form>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <h3>Other ways to reach us:</h3>
+                <p><i class="fa-solid fa-envelope"></i>
+                    <a href="mailto:arts.crafts.sa@gmail.com">arts.crafts.sa@gmail.com</a>
+                </p>
+                <p><i class="fa-solid fa-phone"></i> +27 82 123 4567</p>
+
+                <!-- WhatsApp Button -->
+                <a href="https://wa.me/27821234567" target="_blank" class="btn-whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i> Chat with us on WhatsApp
+                </a>
             </div>
         </div>
     </main>
 
     <footer>
         <div class="footer-container">
-            <a class="footer-links" href="mailto:arts.crafts.sa@gmail.com">arts.crafts.sa@gmail.com</a>
+            <a class="footer-links" href="mailto:arts.crafts.sa@gmail.com">
+                arts.crafts.sa@gmail.com
+            </a>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
-        crossorigin="anonymous"></script>
-
-    <script type="module" src="scripts.js?v=6"></script>
-
+    <!-- Bootstrap JS (for navbar only) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="scripts.js?v=10"></script>
 </body>
 
 </html>
