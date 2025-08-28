@@ -434,6 +434,19 @@ a {
     background-color: var(--highlight-color-dark);
 }
 
+.form-container {
+    display: flex;
+    justify-content: center;
+    margin: 50px 0;
+}
+
+.google-form {
+    width: 100%;
+    min-height: 100vh;
+    border: none;
+    display: block;
+}
+
 .footer-container {
     width: 100vw;
     box-sizing: border-box;
