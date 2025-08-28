@@ -1283,6 +1283,36 @@ body.artist-details main {
     background-color: #1ebe5d;
 }
 
+/* --- Thank You Message Styling --- */
+#thanks {
+    display: none;
+    /* hidden by default */
+    text-align: center;
+    padding: 2rem 1rem;
+    /* more breathing room */
+    margin-top: 2rem;
+    background-color: var(--color-lightest);
+    /* subtle light background */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /* soft shadow */
+}
+
+#thanks img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+#thanks p {
+    font-size: 1.5rem;
+    /* larger text for visibility */
+    font-weight: 600;
+    color: var(--color-dark);
+    margin-top: 0;
+}
+
 /* --- Contact Page Responsiveness --- */
 
 /* Tablet adjustments */
