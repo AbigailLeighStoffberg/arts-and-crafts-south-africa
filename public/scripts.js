@@ -188,61 +188,20 @@ if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         clearError();
+
         const email = loginForm['login-email'].value;
         const password = loginForm['login-password'].value;
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                window.location.href = "index.html";
+                const user = userCredential.user;
+                console.log("User logged in:", user);
+                // Redirect user to account page (or homepage if you prefer)
+                window.location.href = "my-account.html"; 
             })
             .catch((error) => {
+                console.error("Login Error:", error.code, error.message);
                 displayError(error.message);
-            });
-    });
-}
-
-if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        clearError();
-        const email = loginForm['login-email'].value;
-        const password = loginForm['login-password'].value;
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log("User logged in:", user);
-                // Redirect to a dashboard or home page
-                window.location.href = "index.html"; 
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.error("Login Error:", errorCode, errorMessage);
-                displayError(errorMessage);
-            });
-    });
-}
-
-if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        clearError();
-        const email = loginForm['login-email'].value;
-        const password = loginForm['login-password'].value;
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log("User logged in:", user);
-                // Redirect to a dashboard or home page
-                window.location.href = "index.html"; 
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.error("Login Error:", errorCode, errorMessage);
-                displayError(errorMessage);
             });
     });
 }
