@@ -7,100 +7,241 @@ import {
     doc,
     getDoc,
     query,
-    setDoc // We need to import setDoc to save a new document
+    setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-// Add these imports
 import {
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
     updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 
 // --- Firebase Configuration and Initialization ---
 const firebaseConfig = {
-    apiKey: "AIzaSyDDDYmHs-EVYN6UN81bAboxL83VXqkn8-w",
-    authDomain: "arts-and-crafts-sa.firebaseapp.com",
-    projectId: "arts-and-crafts-sa",
+  apiKey: "AIzaSyDDDYmHs-EVYN6UN81bAboxL83VXqkn8-w",
+  authDomain: "arts-and-crafts-sa.firebaseapp.com",
+  projectId: "arts-and-crafts-sa",
+  storageBucket: "arts-and-crafts-sa.firebasestorage.app",
+  messagingSenderId: "858459639939",
+  appId: "1:858459639939:web:a9f8820283f0b71de60bb6",
+  measurementId: "G-JCJEJ30Q80"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-// Add this line
 const auth = getAuth(app);
 
 
-// --- Add this entire section for form handling ---
-// Get form elements
+// --- UI Element References ---
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const errorMessageDisplay = document.getElementById('error-message');
 
-// Function to display an error message
+// Get the new dropdown elements
+const dropdownLoginLink = document.getElementById('dropdown-login-link');
+const dropdownSignupLink = document.getElementById('dropdown-signup-link');
+const dropdownMyAccountLink = document.getElementById('dropdown-my-account-link');
+const dropdownLogoutButton = document.getElementById('dropdown-logout-button');
+const dropdownDivider = document.getElementById('dropdown-divider');
+
+// UI elements for the my-account page
+const userNameDisplay = document.getElementById('user-name');
+const userEmailDisplay = document.getElementById('user-email');
+const logoutButton = document.getElementById('logout-button');
+
+
+// --- Tab Switching Logic ---
+window.openForm = function(evt, formName) {
+    // Check if the tab elements exist on the current page
+    const tabcontent = document.getElementsByClassName("tabcontent");
+    const tablinks = document.getElementsByClassName("tablinks");
+
+    if (tabcontent.length > 0 && tablinks.length > 0) {
+        var i;
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(formName).style.display = "block";
+        if (evt) {
+            evt.currentTarget.className += " active";
+        }
+    } else {
+        // Fallback: If elements don't exist, navigate to the login page with a parameter
+        window.location.href = `user-login.html?form=${formName.toLowerCase()}`;
+    }
+};
+
+
+// --- Helper Functions for UI and Error Handling ---
 const displayError = (message) => {
-    errorMessageDisplay.textContent = message;
-    errorMessageDisplay.style.display = 'block';
+    if (errorMessageDisplay) {
+        errorMessageDisplay.textContent = message;
+        errorMessageDisplay.style.display = 'block';
+    }
 };
 
-// Function to clear the error message
 const clearError = () => {
-    errorMessageDisplay.textContent = '';
-    errorMessageDisplay.style.display = 'none';
+    if (errorMessageDisplay) {
+        errorMessageDisplay.textContent = '';
+        errorMessageDisplay.style.display = 'none';
+    }
 };
 
-// Handle Signup Form Submission
+
+// --- Authentication State Listener (Core of Dynamic Navbar) ---
+onAuthStateChanged(auth, (user) => {
+    // Logic for the entire site (hiding/showing navbar links)
+    if (user) {
+        if (dropdownLoginLink) dropdownLoginLink.classList.add('d-none');
+        if (dropdownSignupLink) dropdownSignupLink.classList.add('d-none');
+        if (dropdownMyAccountLink) dropdownMyAccountLink.classList.remove('d-none');
+        if (dropdownLogoutButton) dropdownLogoutButton.classList.remove('d-none');
+        if (dropdownDivider) dropdownDivider.classList.remove('d-none');
+    } else {
+        if (dropdownLoginLink) dropdownLoginLink.classList.remove('d-none');
+        if (dropdownSignupLink) dropdownSignupLink.classList.remove('d-none');
+        if (dropdownMyAccountLink) dropdownMyAccountLink.classList.add('d-none');
+        if (dropdownLogoutButton) dropdownLogoutButton.classList.add('d-none');
+        if (dropdownDivider) dropdownDivider.classList.add('d-none');
+    }
+
+    // Logic specifically for the my-account page
+    const pathname = window.location.pathname;
+    if (pathname.endsWith('my-account.html')) {
+        if (user) {
+            if (userNameDisplay && user.displayName) {
+                userNameDisplay.textContent = user.displayName;
+            }
+            if (userEmailDisplay && user.email) {
+                userEmailDisplay.textContent = user.email;
+            }
+        } else {
+            // User is signed out, redirect to login page
+            window.location.href = 'user-login.html';
+        }
+    }
+});
+
+
+// --- Logout Logic ---
+if (dropdownLogoutButton) {
+    dropdownLogoutButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        signOut(auth).then(() => {
+            window.location.href = "index.html";
+        }).catch((error) => {
+            console.error("Logout error:", error);
+        });
+    });
+}
+
+if (logoutButton) {
+    logoutButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        signOut(auth).then(() => {
+            window.location.href = "index.html";
+        }).catch((error) => {
+            console.error("Logout error:", error);
+        });
+    });
+}
+
+
+// --- Form Submission Logic ---
 if (signupForm) {
     signupForm.addEventListener('submit', (e) => {
         e.preventDefault();
         clearError();
-
         const name = signupForm['signup-name'].value;
         const email = signupForm['signup-email'].value;
         const password = signupForm['signup-password'].value;
         const confirmPassword = signupForm['signup-confirm-password'].value;
 
         if (password !== confirmPassword) {
-            displayError("Passwords do not match. Please try again.");
+            displayError("Passwords do not match.");
             return;
         }
 
         createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
+            .then(async (userCredential) => {
                 const user = userCredential.user;
-                // Update the user's profile with their display name
-                return updateProfile(user, { displayName: name });
-            })
-            .then(() => {
-                console.log("User signed up successfully and profile updated!");
-                // Redirect to the home page after successful signup
-                window.location.href = 'index.html';
+                await updateProfile(user, { displayName: name });
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    createdAt: new Date()
+                });
+                window.location.href = "my-account.html";
             })
             .catch((error) => {
-                const errorMessage = error.message;
-                displayError(errorMessage);
+                displayError(error.message);
             });
     });
 }
 
-// Handle Login Form Submission
 if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         clearError();
-
         const email = loginForm['login-email'].value;
         const password = loginForm['login-password'].value;
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                // Signed in successfully
-                const user = userCredential.user;
-                console.log("User logged in:", user);
-                // Redirect the user to the home page or dashboard
-                window.location.href = 'index.html';
+                window.location.href = "index.html";
             })
             .catch((error) => {
+                displayError(error.message);
+            });
+    });
+}
+
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        clearError();
+        const email = loginForm['login-email'].value;
+        const password = loginForm['login-password'].value;
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log("User logged in:", user);
+                // Redirect to a dashboard or home page
+                window.location.href = "index.html"; 
+            })
+            .catch((error) => {
+                const errorCode = error.code;
                 const errorMessage = error.message;
+                console.error("Login Error:", errorCode, errorMessage);
+                displayError(errorMessage);
+            });
+    });
+}
+
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        clearError();
+        const email = loginForm['login-email'].value;
+        const password = loginForm['login-password'].value;
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log("User logged in:", user);
+                // Redirect to a dashboard or home page
+                window.location.href = "index.html"; 
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error("Login Error:", errorCode, errorMessage);
                 displayError(errorMessage);
             });
     });
