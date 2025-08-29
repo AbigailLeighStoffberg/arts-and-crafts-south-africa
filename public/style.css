@@ -447,30 +447,136 @@ a {
     display: block;
 }
 
-.footer-container {
-    width: 100vw;
-    box-sizing: border-box;
+footer {
     background-color: var(--color-main);
-    color: white;
+    color: var(--color-lightest);
+    padding: 40px 20px 20px;
+}
+
+.footer-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.footer-brand {
+    max-width: 300px;
+}
+
+.footer-brand h3 {
+    margin: 0 0 10px;
+    color: white;
+}
+
+.footer-brand p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    color: var(--color-lightest);
+}
+
+.social-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 50px 20px;
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.social-links a {
+    color: white;
+    font-size: 24px;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.social-links a:hover {
+    color: var(--color-darkest);
+    transform: scale(1.1);
+}
+
+.footer-column h4 {
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0 0 15px;
+    color: white;
+    letter-spacing: 0.05em;
 }
 
 .footer-links {
-    color: white;
-    font-size: 24px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 8px;
+}
+
+.footer-links a {
+    color: var(--color-lightest);
     text-decoration: none;
-    word-break: break-word;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--color-darkest);
+    text-decoration: underline;
+}
+
+.footer-bottom {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 20px;
+    font-size: 12px;
+    color: var(--color-lightest);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .footer-wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .social-links {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .social-links a {
+        color: white;
+        font-size: 24px;
+        transition: color 0.3s;
+    }
+}
+
+.products-page-body {
+    background: linear-gradient(to top, #dad4ec 0%, #dad4ec 1%, #f3e7e9 100%);
+    background-attachment: fixed;
+    background-size: cover;
 }
 
 .products-heading {
+    font-family: 'Bree Serif', serif;
     font-weight: 500;
     padding-top: 40px;
-    font-size: 33px;
+    font-size: 40px;
     text-align: center;
 }
 
@@ -482,11 +588,10 @@ a {
 }
 
 .all-products-container {
-    background-color: var(--color-lightest);
     padding: 40px;
     max-width: 1000px;
     margin: 0 auto 40px auto;
-    border-radius: 20px;
+    border-radius: 8px;
     box-sizing: border-box;
 }
 
@@ -516,21 +621,29 @@ a {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
     justify-items: center;
     width: 100%;
-    max-width: 1000px;
-    margin-bottom: 10px;
+    max-width: 1400px;
+    padding-bottom: 30px;
 }
 
 .product-card-products-page {
     background-color: white;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 10px 10px 0 10px;
     max-width: 300px;
     box-sizing: border-box;
     text-align: start;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card-products-page:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .product-image-products-page {
@@ -539,7 +652,7 @@ a {
     aspect-ratio: 1 / 1;
     object-fit: cover;
     object-position: center;
-    border-radius: 20px;
+    border-radius: 2px;
     display: block;
     margin: 0 auto;
 }
@@ -547,6 +660,7 @@ a {
 .item-name {
     padding: 5px 5px 0px 5px;
     margin-bottom: 1px;
+    color: var(--color-darkest);
 }
 
 small {
@@ -556,6 +670,7 @@ small {
 
 .item-price {
     text-align: end;
+    color: var(--color-darkest);
 }
 
 .chevron-controls-products-page {

@@ -952,7 +952,7 @@ async function initStorePage() {
     const categoryFilter = document.getElementById('categoryFilter');
     const artistFilter = document.getElementById('artistFilter');
     const sortOptions = document.getElementById('sortOptions');
-    const productsPerPage = 12;
+    const productsPerPage = 16;
     let currentFirestorePage = 1;
     let allProducts = [];
 
@@ -1073,7 +1073,7 @@ async function initStorePage() {
             btn.textContent = i;
             btn.classList.add("btn", "btn-branding", "pagination-btn");
             if (i === currentFirestorePage) {
-                btn.style.backgroundColor = "var(--highlight-color)";
+                btn.style.backgroundColor = "white";
                 btn.style.color = "var(--color-darkest)";
             }
             btn.addEventListener("click", () => {
