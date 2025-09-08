@@ -2,419 +2,328 @@
 
 import { db, storage } from './firebase.js';
 import {
-  collection, addDoc, getDocs, getDoc, query, orderBy, doc, deleteDoc, updateDoc, where
+    collection, addDoc, getDocs, getDoc, query, orderBy, doc, updateDoc, where, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
-  ref, uploadBytes, getDownloadURL, deleteObject
+    ref, uploadBytes, getDownloadURL, deleteObject
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// Global editing state
 let editingProductId = null;
-let editingProductImages = {}; // { original, thumb200, thumb400 }
+let editingProductOriginalImage = null;
 
-const THUMB_SIZES = [200, 400]; // We will generate these sizes in addition to original
-
-// --- FORM SETUP ---
+// ----------------------
+// Product Form Setup
+// ----------------------
 export function setupProductForm() {
-  const addProductBtn = document.getElementById("add-product-btn");
-  const cancelEditBtn = document.getElementById("cancel-edit-product-btn");
-  const artistFilterSelect = document.getElementById("artist-filter");
+    const addProductBtn = document.getElementById("add-product-btn");
+    const cancelEditBtn = document.getElementById("cancel-edit-product-btn");
+    const artistFilterSelect = document.getElementById("artist-filter");
 
-  addProductBtn?.addEventListener("click", handleProductSubmit);
-  cancelEditBtn?.addEventListener("click", clearProductForm);
-  artistFilterSelect?.addEventListener("change", async () => {
-    const selectedArtistId = artistFilterSelect.value;
-    await loadProducts(selectedArtistId);
-  });
+    addProductBtn?.addEventListener("click", handleProductSubmit);
+    cancelEditBtn?.addEventListener("click", clearProductForm);
 
-  populateCategoriesDropdown();
-  populateArtistDropdownForProductForm();
-  populateArtistFilter();
+    artistFilterSelect?.addEventListener("change", async () => {
+        await loadProducts(artistFilterSelect.value);
+    });
+
+    populateCategoriesDropdown();
+    populateArtistDropdownForProductForm();
+    populateArtistFilter();
 }
 
-// --- CLEAR FORM ---
+// ----------------------
+// Clear Form
+// ----------------------
 export function clearProductForm() {
-  [
-    "product-name", "product-description", "product-category",
-    "product-price-usd", "product-price-zar", "product-stock"
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
+    const fields = ["product-name", "product-description", "product-category",
+        "product-price-usd", "product-price-zar", "product-stock"];
+    fields.forEach(id => document.getElementById(id).value = "");
 
-  document.getElementById("product-artist-id").selectedIndex = 0;
-  document.getElementById("product-main-image").value = "";
-  document.getElementById("current-product-main-image").innerHTML = "";
+    document.getElementById("product-artist-id").selectedIndex = 0;
+    document.getElementById("product-main-image").value = "";
+    document.getElementById("current-product-main-image").innerHTML = "";
 
-  document.getElementById("add-product-btn").textContent = "Add Product";
-  document.getElementById("add-product-btn").classList.remove("update-mode");
-  document.getElementById("cancel-edit-product-btn").style.display = "none";
-  document.getElementById("product-form-title").textContent = "Add Product";
+    document.getElementById("add-product-btn").textContent = "Add Product";
+    document.getElementById("add-product-btn").classList.remove("update-mode");
+    document.getElementById("cancel-edit-product-btn").style.display = "none";
+    document.getElementById("product-form-title").textContent = "Add Product";
 
-  editingProductId = null;
-  editingProductImages = {};
+    editingProductId = null;
+    editingProductOriginalImage = null;
 
-  document.getElementById("product-submit-success").textContent = "";
-  document.getElementById("product-submit-error").textContent = "";
+    document.getElementById("product-submit-success").textContent = "";
+    document.getElementById("product-submit-error").textContent = "";
 }
 
-// --- IMAGE UPLOAD HELPERS ---
-async function uploadImage(file, path) {
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, file);
-  return getDownloadURL(storageRef);
-}
-
-/**
- * Generate resized images in the browser
- * @param {File} file
- * @param {Array} sizes array of widths in px
- * @returns {Object} {200: blob, 400: blob}
- */
-async function generateThumbnails(file, sizes) {
-  const img = document.createElement("img");
-  img.src = URL.createObjectURL(file);
-
-  await new Promise(resolve => {
-    img.onload = () => resolve();
-  });
-
-  const canvas = document.createElement("canvas");
-  const result = {};
-
-  for (let size of sizes) {
-    const scale = size / Math.max(img.width, img.height);
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    const blob = await new Promise(res => canvas.toBlob(res, file.type, 0.85));
-    result[size] = blob;
-  }
-
-  return result;
-}
-
-// --- HANDLE PRODUCT SUBMIT ---
+// ----------------------
+// Submit Product
+// ----------------------
 async function handleProductSubmit() {
-  const name = document.getElementById("product-name").value.trim();
-  const description = document.getElementById("product-description").value.trim();
-  const priceUsd = parseFloat(document.getElementById("product-price-usd").value.trim());
-  const priceZar = parseFloat(document.getElementById("product-price-zar").value.trim());
-  const quantity = parseInt(document.getElementById("product-stock").value.trim(), 10);
-  const artistId = document.getElementById("product-artist-id").value;
-  const category = document.getElementById("product-category").value.trim();
-  const imageFile = document.getElementById("product-main-image").files[0];
+    const name = document.getElementById("product-name").value.trim();
+    const description = document.getElementById("product-description").value.trim();
+    const priceUsd = parseFloat(document.getElementById("product-price-usd").value.trim());
+    const priceZar = parseFloat(document.getElementById("product-price-zar").value.trim());
+    const quantity = parseInt(document.getElementById("product-stock").value.trim(), 10);
+    const artistId = document.getElementById("product-artist-id").value;
+    const category = document.getElementById("product-category").value.trim();
+    const imageFile = document.getElementById("product-main-image").files[0];
 
-  const successMessageEl = document.getElementById("product-submit-success");
-  const errorMessageEl = document.getElementById("product-submit-error");
-  successMessageEl.textContent = "";
-  errorMessageEl.textContent = "";
+    const successMessageEl = document.getElementById("product-submit-success");
+    const errorMessageEl = document.getElementById("product-submit-error");
+    successMessageEl.textContent = "";
+    errorMessageEl.textContent = "";
 
-  if (!name || !artistId || isNaN(priceUsd) || !category) {
-    errorMessageEl.textContent = "Product Name, Price (USD), Artist, and Category are required.";
-    return;
-  }
+    if (!name || !artistId || isNaN(priceUsd) || !category) {
+        errorMessageEl.textContent = "Product Name, Price (USD), Artist, and Category are required.";
+        return;
+    }
 
-  const addUpdateBtn = document.getElementById("add-product-btn");
-  addUpdateBtn.disabled = true;
+    const addUpdateBtn = document.getElementById("add-product-btn");
+    addUpdateBtn.disabled = true;
 
-  try {
-    let originalUrl = editingProductImages.original || null;
-    let thumb200Url = editingProductImages.thumb200 || null;
-    let thumb400Url = editingProductImages.thumb400 || null;
+    try {
+        let originalImageUrl = editingProductOriginalImage;
 
-    const safeName = name.replace(/\s+/g, "_").toLowerCase();
-
-    if (imageFile) {
-      // Delete old images if editing
-      if (editingProductId && editingProductImages.original) {
-        for (let key of ["original", "thumb200", "thumb400"]) {
-          if (editingProductImages[key]) {
-            try {
-              const url = new URL(editingProductImages[key]);
-              const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
-              await deleteObject(ref(storage, path));
-            } catch (e) {
-              console.warn("Could not delete old image:", e);
+        // Upload new image if selected
+        if (imageFile) {
+            if (editingProductOriginalImage) {
+                // Delete old image
+                try {
+                    const url = new URL(editingProductOriginalImage);
+                    const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
+                    await deleteObject(ref(storage, path));
+                } catch(e){ console.warn("Could not delete old image", e); }
             }
-          }
+
+            const safeName = name.replace(/\s+/g,"_").toLowerCase();
+            const imageRef = ref(storage, `products/originals/${safeName}_${Date.now()}_${imageFile.name}`);
+            await uploadBytes(imageRef, imageFile);
+            originalImageUrl = await getDownloadURL(imageRef);
         }
-      }
 
-      // Upload original
-      originalUrl = await uploadImage(imageFile, `products/originals/${safeName}_${Date.now()}_${imageFile.name}`);
+        const productData = {
+            name,
+            description,
+            priceUsd,
+            priceZar: isNaN(priceZar)?null:priceZar,
+            quantity: isNaN(quantity)?null:quantity,
+            artistId,
+            category,
+            originalImage: originalImageUrl,
+            updatedAt: new Date(),
+        };
 
-      // Generate and upload thumbnails
-      const thumbs = await generateThumbnails(imageFile, THUMB_SIZES);
-      thumb200Url = await uploadImage(thumbs[200], `products/200x200/${safeName}_${Date.now()}_${imageFile.name}`);
-      thumb400Url = await uploadImage(thumbs[400], `products/400x400/${safeName}_${Date.now()}_${imageFile.name}`);
+        if (editingProductId) {
+            const docRef = doc(db,"products",editingProductId);
+            await updateDoc(docRef, productData);
+            successMessageEl.textContent = "Product updated!";
+        } else {
+            productData.createdAt = new Date();
+            const docRef = await addDoc(collection(db,"products"),productData);
+            successMessageEl.textContent = "Product added!";
 
-      editingProductImages = { original: originalUrl, thumb200: thumb200Url, thumb400: thumb400Url };
+            // Preview new product image immediately
+            if(originalImageUrl){
+                document.getElementById("current-product-main-image").innerHTML =
+                    `<img src="${originalImageUrl}" width="80" style="margin-top:8px;border:1px solid #ccc;">`;
+            }
+        }
+
+        clearProductForm();
+        await loadProducts();
+
+    } catch(err) {
+        console.error(err);
+        errorMessageEl.textContent = "Failed to save product: "+(err.message||err);
+    } finally {
+        addUpdateBtn.disabled = false;
     }
-
-    const productData = {
-      name,
-      description,
-      priceUsd,
-      priceZar: isNaN(priceZar) ? null : priceZar,
-      quantity: isNaN(quantity) ? null : quantity,
-      artistId,
-      category,
-      originalImage: originalUrl,
-      thumbnail200: thumb200Url,
-      thumbnail400: thumb400Url,
-      updatedAt: new Date()
-    };
-
-    if (editingProductId) {
-      const docRef = doc(db, "products", editingProductId);
-      await updateDoc(docRef, productData);
-      successMessageEl.textContent = "Product updated successfully!";
-    } else {
-      productData.createdAt = new Date();
-      await addDoc(collection(db, "products"), productData);
-      successMessageEl.textContent = "Product added successfully!";
-    }
-
-    clearProductForm();
-    await loadProducts();
-
-  } catch (err) {
-    console.error("Product submission failed:", err);
-    errorMessageEl.textContent = `Failed to save product: ${err.message || "Unknown error"}`;
-  } finally {
-    addUpdateBtn.disabled = false;
-  }
 }
 
-// --- LOAD PRODUCTS ---
-export async function loadProducts(artistFilterId = "") {
-  const listElement = document.getElementById("products-list");
-  if (!listElement) return;
-  listElement.innerHTML = "Loading products...";
+// ----------------------
+// Load Products
+// ----------------------
+export async function loadProducts(artistFilterId="") {
+    const listEl = document.getElementById("products-list");
+    if(!listEl) return;
+    listEl.innerHTML = "Loading products...";
 
-  try {
-    let productsQueryRef = collection(db, "products");
-    let productsQuery = query(productsQueryRef, orderBy("createdAt", "desc"));
+    try {
+        let productsQueryRef = collection(db,"products");
+        let q = query(productsQueryRef, orderBy("createdAt","desc"));
+        if(artistFilterId) q = query(q, where("artistId","==",artistFilterId));
 
-    if (artistFilterId) {
-      productsQuery = query(productsQuery, where("artistId", "==", artistFilterId));
+        const snapshot = await getDocs(q);
+        if(snapshot.empty){ listEl.innerHTML="<p>No products found.</p>"; return; }
+
+        const artistsSnap = await getDocs(collection(db,"artists"));
+        const artistsMap = {};
+        artistsSnap.forEach(doc=>{ artistsMap[doc.id]=doc.data().name || "Unnamed Artist"; });
+
+        const categoriesSnap = await getDocs(collection(db,"categories"));
+        const categoriesMap = new Map();
+        categoriesSnap.forEach(doc=>categoriesMap.set(doc.data().slug, doc.data().displayName));
+
+        let html = "<ul style='list-style:none;padding:0'>";
+        snapshot.forEach(docSnap=>{
+            const product = docSnap.data();
+            const id = docSnap.id;
+            const artistName = artistsMap[product.artistId] || "Unknown Artist";
+            const categoryDisplayName = categoriesMap.get(product.category) || product.category || "N/A";
+
+            // Use 200x200 thumbnail if exists
+            const thumb200 = product.thumbnail200 || product.originalImage || "";
+            html += `<li style="margin-bottom:20px; border:1px solid #eee; padding:10px; border-radius:5px;">
+                <strong>${product.name}</strong><br/>
+                Artist: ${artistName}<br/>
+                Price: $${typeof product.priceUsd==='number'?product.priceUsd.toFixed(2):"N/A"}<br/>
+                Price (ZAR): R${typeof product.priceZar==='number'?product.priceZar.toFixed(2):"N/A"}<br/>
+                Quantity: ${product.quantity||0}<br/>
+                Category: ${categoryDisplayName}<br/>
+                ${thumb200 ? `<div><img src="${thumb200}" width="80" style="margin-top:5px;border-radius:3px;"/></div>` : ""}
+                <div style="margin-top:10px;">
+                    <button class="edit-product-btn" data-id="${id}">Edit</button>
+                    <button class="delete-product-btn" data-id="${id}">Delete</button>
+                </div>
+            </li>`;
+        });
+        html += "</ul>";
+        listEl.innerHTML = html;
+
+        document.querySelectorAll(".edit-product-btn").forEach(btn=>{
+            btn.addEventListener("click",()=>editProduct(btn.dataset.id));
+        });
+        document.querySelectorAll(".delete-product-btn").forEach(btn=>{
+            btn.addEventListener("click",()=>{ 
+                if(confirm("Are you sure?")) deleteProduct(btn.dataset.id); 
+            });
+        });
+
+    } catch(err){
+        console.error(err);
+        listEl.innerHTML="<p>Failed to load products.</p>";
     }
-
-    const snapshot = await getDocs(productsQuery);
-    if (snapshot.empty) {
-      listElement.innerHTML = "<p>No products found.</p>";
-      return;
-    }
-
-    const artistsSnapshot = await getDocs(collection(db, "artists"));
-    const artistsMap = {};
-    artistsSnapshot.forEach(doc => artistsMap[doc.id] = doc.data().name || "Unnamed Artist");
-
-    const categoriesSnapshot = await getDocs(collection(db, "categories"));
-    const categoriesMap = new Map();
-    categoriesSnapshot.forEach(doc => {
-      const cat = doc.data();
-      categoriesMap.set(cat.slug, cat.displayName);
-    });
-
-    let htmlContent = "<ul style='list-style:none;padding:0'>";
-
-    snapshot.forEach(docSnap => {
-      const product = docSnap.data();
-      const productId = docSnap.id;
-      const artistName = artistsMap[product.artistId] || "Unknown Artist";
-      const categoryDisplayName = categoriesMap.get(product.category) || product.category || "N/A";
-
-      const displayImage = product.thumbnail200 || product.originalImage;
-
-      htmlContent += `<li style="margin-bottom:20px;border:1px solid #eee;padding:10px;border-radius:5px;">
-        <strong>${product.name}</strong><br/>
-        Artist: ${artistName}<br/>
-        Price: $${typeof product.priceUsd === 'number' ? product.priceUsd.toFixed(2) : "N/A"}<br/>
-        Price (ZAR): R${typeof product.priceZar === 'number' ? product.priceZar.toFixed(2) : "N/A"}<br/>
-        Quantity: ${product.quantity || 0}<br/>
-        Category: ${categoryDisplayName}<br/>
-        ${displayImage ? `<div><strong>Image:</strong><br/><img src="${displayImage}" width="80" style="margin-top:5px;border-radius:3px;"></div>` : ""}
-        <div style="margin-top:10px;">
-          <button class="edit-product-btn" data-id="${productId}">Edit</button>
-          <button class="delete-product-btn" data-id="${productId}">Delete</button>
-        </div>
-      </li>`;
-    });
-
-    htmlContent += "</ul>";
-    listElement.innerHTML = htmlContent;
-
-    document.querySelectorAll(".edit-product-btn").forEach(btn => {
-      btn.addEventListener("click", () => editProduct(btn.dataset.id));
-    });
-    document.querySelectorAll(".delete-product-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (confirm("Delete this product and all its images?")) deleteProduct(btn.dataset.id);
-      });
-    });
-
-  } catch (err) {
-    console.error("Failed to load products:", err);
-    listElement.innerHTML = "<p>Failed to load products.</p>";
-  }
 }
 
-// --- EDIT PRODUCT ---
-async function editProduct(id) {
-  const productDocRef = doc(db, "products", id);
-  const snap = await getDoc(productDocRef);
-  if (!snap.exists()) {
-    document.getElementById("product-submit-error").textContent = "Product not found for editing.";
-    return;
-  }
-
-  const product = snap.data();
-  editingProductId = id;
-  editingProductImages = {
-    original: product.originalImage,
-    thumb200: product.thumbnail200,
-    thumb400: product.thumbnail400
-  };
-
-  await populateCategoriesDropdown();
-  await populateArtistDropdownForProductForm();
-
-  document.getElementById("product-name").value = product.name || "";
-  document.getElementById("product-description").value = product.description || "";
-  document.getElementById("product-price-usd").value = product.priceUsd || "";
-  document.getElementById("product-price-zar").value = product.priceZar || "";
-  document.getElementById("product-stock").value = product.quantity || "";
-  document.getElementById("product-artist-id").value = product.artistId || "";
-  document.getElementById("product-category").value = product.category || "";
-
-  document.getElementById("product-form-title").textContent = "Edit Product";
-  document.getElementById("add-product-btn").textContent = "Update Product";
-  document.getElementById("add-product-btn").classList.add("update-mode");
-  document.getElementById("cancel-edit-product-btn").style.display = "inline-block";
-
-  document.getElementById("current-product-main-image").innerHTML = product.originalImage
-    ? `<img src="${product.originalImage}" width="80" style="margin-top:8px;border:1px solid #ccc;">`
-    : "<p>No main image.</p>";
-
-  document.getElementById("product-submit-success").textContent = "";
-  document.getElementById("product-submit-error").textContent = "";
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// --- DELETE PRODUCT ---
-async function deleteProduct(id) {
-  try {
-    const productDocRef = doc(db, "products", id);
-    const snap = await getDoc(productDocRef);
+// ----------------------
+// Edit Product
+// ----------------------
+async function editProduct(id){
+    const docRef = doc(db,"products",id);
+    const snap = await getDoc(docRef);
+    if(!snap.exists()){ document.getElementById("product-submit-error").textContent="Product not found."; return; }
     const product = snap.data();
 
-    if (product) {
-      for (let key of ["originalImage", "thumbnail200", "thumbnail400"]) {
-        if (product[key]) {
-          try {
-            const url = new URL(product[key]);
-            const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
-            await deleteObject(ref(storage, path));
-          } catch (e) {
-            console.warn("Could not delete image:", e);
-          }
+    editingProductId = id;
+    editingProductOriginalImage = product.originalImage;
+
+    await populateCategoriesDropdown();
+    await populateArtistDropdownForProductForm();
+
+    document.getElementById("product-name").value = product.name||"";
+    document.getElementById("product-description").value = product.description||"";
+    document.getElementById("product-price-usd").value = product.priceUsd||"";
+    document.getElementById("product-price-zar").value = product.priceZar||"";
+    document.getElementById("product-stock").value = product.quantity||"";
+    document.getElementById("product-artist-id").value = product.artistId||"";
+    document.getElementById("product-category").value = product.category||"";
+
+    document.getElementById("product-form-title").textContent="Edit Product";
+    document.getElementById("add-product-btn").textContent="Update Product";
+    document.getElementById("add-product-btn").classList.add("update-mode");
+    document.getElementById("cancel-edit-product-btn").style.display="inline-block";
+
+    document.getElementById("current-product-main-image").innerHTML = product.originalImage
+        ? `<img src="${product.originalImage}" width="80" style="margin-top:8px;border:1px solid #ccc;">`
+        : "<p>No main image.</p>";
+
+    document.getElementById("product-submit-success").textContent = "";
+    document.getElementById("product-submit-error").textContent = "";
+
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ----------------------
+// Delete Product
+// ----------------------
+async function deleteProduct(id){
+    try{
+        const docRef = doc(db,"products",id);
+        const snap = await getDoc(docRef);
+        const product = snap.data();
+
+        // Delete all images
+        const imagesToDelete = [product.originalImage, product.thumbnail200, product.thumbnail400, product.thumbnail800];
+        for(const url of imagesToDelete){
+            if(url){
+                try{
+                    const path = decodeURIComponent(new URL(url).pathname.split('/o/')[1].split('?')[0]);
+                    await deleteObject(ref(storage,path));
+                }catch(e){console.warn("Failed to delete image",e);}
+            }
         }
-      }
-    }
 
-    await deleteDoc(productDocRef);
-    document.getElementById("product-submit-success").textContent = "Product deleted successfully!";
-    await loadProducts();
-
-  } catch (err) {
-    console.error("Failed to delete product:", err);
-    document.getElementById("product-submit-error").textContent = "Failed to delete product.";
-  }
+        await deleteDoc(docRef);
+        document.getElementById("product-submit-success").textContent="Product deleted!";
+        await loadProducts();
+    }catch(err){ console.error(err); document.getElementById("product-submit-error").textContent="Failed to delete product."; }
 }
 
-// --- DROPDOWNS ---
-export async function populateArtistFilter() {
-  const select = document.getElementById("artist-filter");
-  if (!select) return;
-
-  const current = select.value;
-  select.innerHTML = '<option value="">All Artists</option>';
-
-  try {
-    const artists = await getDocs(collection(db, "artists"));
-    artists.forEach(doc => {
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = doc.data().name || "Unnamed Artist";
-      select.appendChild(option);
+// ----------------------
+// Populate Dropdowns
+// ----------------------
+export async function populateArtistFilter(){
+    const selectEl = document.getElementById("artist-filter");
+    if(!selectEl) return;
+    const curVal = selectEl.value;
+    selectEl.innerHTML='<option value="">All Artists</option>';
+    const artistsSnap = await getDocs(collection(db,"artists"));
+    artistsSnap.forEach(doc=>{
+        const artist=doc.data();
+        const opt = document.createElement("option");
+        opt.value = doc.id;
+        opt.textContent = artist.name||"Unnamed Artist";
+        selectEl.appendChild(opt);
     });
-    select.value = current || "";
-  } catch (e) {
-    console.error("Failed to populate artist filter:", e);
-  }
+    selectEl.value = curVal || "";
 }
 
-async function populateArtistDropdownForProductForm() {
-  const select = document.getElementById("product-artist-id");
-  if (!select) return;
-
-  const current = select.value;
-  select.innerHTML = '<option value="">-- Select an Artist --</option>';
-
-  try {
-    const artists = await getDocs(collection(db, "artists"));
-    artists.forEach(doc => {
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = doc.data().name || "Unnamed Artist";
-      select.appendChild(option);
+async function populateArtistDropdownForProductForm(){
+    const selectEl = document.getElementById("product-artist-id");
+    if(!selectEl) return;
+    const curVal = selectEl.value;
+    selectEl.innerHTML='<option value="">-- Select an Artist --</option>';
+    const artistsSnap = await getDocs(collection(db,"artists"));
+    artistsSnap.forEach(doc=>{
+        const artist = doc.data();
+        const opt = document.createElement("option");
+        opt.value = doc.id;
+        opt.textContent = artist.name||"Unnamed Artist";
+        selectEl.appendChild(opt);
     });
-    select.value = current;
-  } catch (e) {
-    console.error("Failed to populate artist dropdown:", e);
-  }
+    selectEl.value = curVal;
 }
 
-export async function populateCategoriesDropdown() {
-  const select = document.getElementById("product-category");
-  if (!select) return;
-  const current = select.value;
-  select.innerHTML = '<option value="">-- Select Category --</option>';
-
-  try {
-    const snapshot = await getDocs(query(collection(db, "categories"), orderBy("displayName")));
-    if (snapshot.empty) {
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = "No categories available";
-      option.disabled = true;
-      select.appendChild(option);
-      return;
-    }
-
-    snapshot.forEach(doc => {
-      const cat = doc.data();
-      const option = document.createElement("option");
-      option.value = cat.slug || doc.id;
-      option.textContent = cat.displayName || cat.slug || "Unnamed Category";
-      select.appendChild(option);
+export async function populateCategoriesDropdown(){
+    const selectEl = document.getElementById("product-category");
+    if(!selectEl) return;
+    const curVal = selectEl.value;
+    selectEl.innerHTML='<option value="">-- Select Category --</option>';
+    const snapshot = await getDocs(query(collection(db,"categories"),orderBy("displayName")));
+    snapshot.forEach(doc=>{
+        const cat = doc.data();
+        const opt = document.createElement("option");
+        opt.value = cat.slug||doc.id;
+        opt.textContent = cat.displayName||cat.slug||"Unnamed Category";
+        selectEl.appendChild(opt);
     });
-
-    select.value = current;
-
-  } catch (e) {
-    console.error("Failed to populate categories dropdown:", e);
-    document.getElementById("product-submit-error").textContent = "Failed to load categories.";
-  }
+    selectEl.value = curVal;
 }
 
-// --- INITIAL LOAD ---
-document.addEventListener('DOMContentLoaded', () => {
-  setupProductForm();
-  loadProducts();
+// ----------------------
+// Initialize
+// ----------------------
+document.addEventListener('DOMContentLoaded',()=>{
+    setupProductForm();
+    loadProducts();
 });
