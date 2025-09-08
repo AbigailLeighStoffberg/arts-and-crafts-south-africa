@@ -1063,25 +1063,30 @@ async function initStorePage() {
         updateFilteredChevronState(products);
     }
 
-    function renderFilteredPagination(filteredProducts) {
-        if (!paginationContainer) return;
-        const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-        paginationContainer.innerHTML = "";
+    function renderFilteredPage(filtered, pageNumber) {
+    const start = (pageNumber - 1) * productsPerPage;
+    const end = start + productsPerPage;
+    const pageItems = filtered.slice(start, end);
 
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement("button");
-            btn.textContent = i;
-            btn.classList.add("btn", "btn-branding", "pagination-btn");
-            if (i === currentFirestorePage) {
-                btn.style.backgroundColor = "white";
-                btn.style.color = "var(--color-darkest)";
-            }
-            btn.addEventListener("click", () => {
-                renderFilteredPage(filteredProducts, i);
-            });
-            paginationContainer.appendChild(btn);
-        }
-    }
+    const container = document.getElementById('products-container');
+    container.innerHTML = '';
+
+    pageItems.forEach(product => {
+        const img = document.createElement('img');
+
+        // Choose image size depending on context
+        img.src = product.images?.listing || product.images?.original; 
+        img.alt = product.name;
+
+        const div = document.createElement('div');
+        div.classList.add('product-card');
+        div.appendChild(img);
+        div.appendChild(document.createTextNode(product.name));
+
+        container.appendChild(div);
+    });
+}
+
 
     function updateFilteredChevronState(filteredProducts) {
         const totalPages = Math.ceil(filteredProducts.length / productsPerPage);

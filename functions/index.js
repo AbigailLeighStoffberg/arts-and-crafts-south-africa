@@ -2,46 +2,61 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-exports.updateProductWithResizedImage = functions.storage.object().onFinalize(async (object) => {
-    // Only process images in the 'products/resized/' folder
-    if (!object.name.startsWith('products/resized/') || !object.contentType?.startsWith('image/')) {
-        return null;
+// Map of sizes you want
+const sizes = {
+    thumbnail: 200,
+    listing: 400,
+    detail: 800
+};
+
+exports.updateProductWithResizedImages = functions.storage.object().onFinalize(async (object) => {
+    const filePath = object.name;
+    const bucket = object.bucket;
+    const contentType = object.contentType;
+
+    if (!contentType.startsWith('image/') || !filePath.startsWith('products/resized/')) {
+        return null; // Ignore non-images or files outside resized folder
     }
 
-    const filePath = object.name; // e.g., "products/resized/my_image_300.webp"
-    const bucket = admin.storage().bucket(object.bucket); // Admin SDK bucket object
-
-    // Extract the original file name
-    const fileName = filePath.split('/').pop(); // "my_image_300.webp"
-    const originalName = fileName.substring(0, fileName.lastIndexOf('_')); // "my_image"
+    const fileName = filePath.split('/').pop();
+    const originalName = fileName.substring(0, fileName.lastIndexOf('_')); // e.g., "product123.jpg_200x200" → "product123.jpg"
 
     try {
-        // Construct the public download URL
-        const resizedUrl = `https://firebasestorage.googleapis.com/v0/b/${object.bucket}/o/${encodeURIComponent(filePath)}?alt=media`;
+        const bucketRef = admin.storage().bucket(bucket);
+        const resizedUrl = await bucketRef.file(filePath).getSignedUrl({
+            action: 'read',
+            expires: '03-01-2500' // very long expiry
+        });
 
-        // Query Firestore for the product with this original image
+        // Query Firestore using filename field
         const productsRef = admin.firestore().collection('products');
-        const q = productsRef.where('originalImage', '==', `https://firebasestorage.googleapis.com/v0/b/${object.bucket}/o/products%2Foriginals%2F${encodeURIComponent(originalName)}?alt=media`);
-        const snapshot = await q.get();
+        const snapshot = await productsRef.where('originalFileName', '==', originalName).get();
 
         if (snapshot.empty) {
             console.log(`No matching product found for image: ${originalName}`);
             return null;
         }
 
-        // Update product(s) with the new resized URL
-        const updates = [];
-        snapshot.forEach(doc => {
-            updates.push(doc.ref.update({
-                mainImage: resizedUrl,
-                originalImage: admin.firestore.FieldValue.delete()
-            }));
-            console.log(`Queued update for product ${doc.id} with resized image URL: ${resizedUrl}`);
-        });
+        snapshot.forEach(async (doc) => {
+            // Determine which size this is from the filename
+            let sizeKey = null;
+            for (const key of Object.keys(sizes)) {
+                if (fileName.includes(`_${sizes[key]}x${sizes[key]}`)) {
+                    sizeKey = key;
+                    break;
+                }
+            }
+            if (!sizeKey) sizeKey = 'detail'; // fallback
 
-        await Promise.all(updates);
-        console.log('All products updated successfully');
-        return null;
+            // Update the product document
+            await doc.ref.set({
+                images: {
+                    [sizeKey]: resizedUrl[0] // signed URL
+                }
+            }, { merge: true });
+
+            console.log(`Updated product ${doc.id} with ${sizeKey} image: ${resizedUrl[0]}`);
+        });
 
     } catch (error) {
         console.error('Error updating product with resized image:', error);

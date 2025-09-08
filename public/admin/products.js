@@ -1,455 +1,420 @@
 // products.js
 
-// Import necessary Firebase modules and services
-import { db, storage } from './firebase.js'; // This 'firebase.js' should initialize Firebase for your admin dashboard
-
+import { db, storage } from './firebase.js';
 import {
-    collection, addDoc, getDocs, getDoc,
-    query, orderBy, doc, deleteDoc, updateDoc, where
+  collection, addDoc, getDocs, getDoc, query, orderBy, doc, deleteDoc, updateDoc, where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 import {
-    ref, uploadBytes, getDownloadURL, deleteObject
+  ref, uploadBytes, getDownloadURL, deleteObject
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// Global variables to manage product editing state
+// Global editing state
 let editingProductId = null;
-let editingProductImageUrl = null;
+let editingProductImages = {}; // { original, thumb200, thumb400 }
 
-/**
- * Sets up event listeners for the product form buttons.
- */
+const THUMB_SIZES = [200, 400]; // We will generate these sizes in addition to original
+
+// --- FORM SETUP ---
 export function setupProductForm() {
-    const addProductBtn = document.getElementById("add-product-btn");
-    const cancelEditBtn = document.getElementById("cancel-edit-product-btn");
-    const artistFilterSelect = document.getElementById("artist-filter");
+  const addProductBtn = document.getElementById("add-product-btn");
+  const cancelEditBtn = document.getElementById("cancel-edit-product-btn");
+  const artistFilterSelect = document.getElementById("artist-filter");
 
-    // Event listeners for adding/updating and canceling product edits
-    addProductBtn?.addEventListener("click", handleProductSubmit);
-    cancelEditBtn?.addEventListener("click", clearProductForm);
+  addProductBtn?.addEventListener("click", handleProductSubmit);
+  cancelEditBtn?.addEventListener("click", clearProductForm);
+  artistFilterSelect?.addEventListener("change", async () => {
+    const selectedArtistId = artistFilterSelect.value;
+    await loadProducts(selectedArtistId);
+  });
 
-    // Event listener for filtering products by artist
-    artistFilterSelect?.addEventListener("change", async () => {
-        const selectedArtistId = artistFilterSelect.value;
-        await loadProducts(selectedArtistId);
-    });
-
-    // Dynamically populate dropdowns when the form is set up
-    populateCategoriesDropdown();
-    populateArtistDropdownForProductForm(); // For the artist selection in the product form itself
-    populateArtistFilter(); // For filtering the product list
+  populateCategoriesDropdown();
+  populateArtistDropdownForProductForm();
+  populateArtistFilter();
 }
 
-/**
- * Clears all input fields in the product form and resets button states.
- */
+// --- CLEAR FORM ---
 export function clearProductForm() {
-    // List of input fields to clear
-    const fields = [
-        "product-name", "product-description", "product-category",
-        "product-price-usd", "product-price-zar", "product-stock",
-    ];
-    fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-    });
+  [
+    "product-name", "product-description", "product-category",
+    "product-price-usd", "product-price-zar", "product-stock"
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
 
-    // Reset specific elements
-    document.getElementById("product-artist-id").selectedIndex = 0; // Reset artist dropdown
-    document.getElementById("product-main-image").value = ""; // Clear file input
-    document.getElementById("current-product-main-image").innerHTML = ""; // Clear current image preview
+  document.getElementById("product-artist-id").selectedIndex = 0;
+  document.getElementById("product-main-image").value = "";
+  document.getElementById("current-product-main-image").innerHTML = "";
 
-    // Reset button texts and visibility
-    document.getElementById("add-product-btn").textContent = "Add Product";
-    document.getElementById("add-product-btn").classList.remove("update-mode");
-    document.getElementById("cancel-edit-product-btn").style.display = "none";
-    document.getElementById("product-form-title").textContent = "Add Product";
+  document.getElementById("add-product-btn").textContent = "Add Product";
+  document.getElementById("add-product-btn").classList.remove("update-mode");
+  document.getElementById("cancel-edit-product-btn").style.display = "none";
+  document.getElementById("product-form-title").textContent = "Add Product";
 
-    // Reset editing state variables
-    editingProductId = null;
-    editingProductImageUrl = null;
+  editingProductId = null;
+  editingProductImages = {};
 
-    // Clear submission messages
-    document.getElementById("product-submit-success").textContent = "";
-    document.getElementById("product-submit-error").textContent = "";
+  document.getElementById("product-submit-success").textContent = "";
+  document.getElementById("product-submit-error").textContent = "";
+}
+
+// --- IMAGE UPLOAD HELPERS ---
+async function uploadImage(file, path) {
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  return getDownloadURL(storageRef);
 }
 
 /**
- * Handles the submission of the product form (add or update).
- */
+ * Generate resized images in the browser
+ * @param {File} file
+ * @param {Array} sizes array of widths in px
+ * @returns {Object} {200: blob, 400: blob}
+ */
+async function generateThumbnails(file, sizes) {
+  const img = document.createElement("img");
+  img.src = URL.createObjectURL(file);
+
+  await new Promise(resolve => {
+    img.onload = () => resolve();
+  });
+
+  const canvas = document.createElement("canvas");
+  const result = {};
+
+  for (let size of sizes) {
+    const scale = size / Math.max(img.width, img.height);
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    const blob = await new Promise(res => canvas.toBlob(res, file.type, 0.85));
+    result[size] = blob;
+  }
+
+  return result;
+}
+
+// --- HANDLE PRODUCT SUBMIT ---
 async function handleProductSubmit() {
-    // Get values from form fields, trimming whitespace
-    const name = document.getElementById("product-name").value.trim();
-    const description = document.getElementById("product-description").value.trim();
-    const priceUsd = parseFloat(document.getElementById("product-price-usd").value.trim());
-    const priceZar = parseFloat(document.getElementById("product-price-zar").value.trim());
-    const quantity = parseInt(document.getElementById("product-stock").value.trim(), 10);
-    const artistId = document.getElementById("product-artist-id").value;
-    const category = document.getElementById("product-category").value.trim();
-    const imageFile = document.getElementById("product-main-image").files[0];
+  const name = document.getElementById("product-name").value.trim();
+  const description = document.getElementById("product-description").value.trim();
+  const priceUsd = parseFloat(document.getElementById("product-price-usd").value.trim());
+  const priceZar = parseFloat(document.getElementById("product-price-zar").value.trim());
+  const quantity = parseInt(document.getElementById("product-stock").value.trim(), 10);
+  const artistId = document.getElementById("product-artist-id").value;
+  const category = document.getElementById("product-category").value.trim();
+  const imageFile = document.getElementById("product-main-image").files[0];
 
-    const successMessageEl = document.getElementById("product-submit-success");
-    const errorMessageEl = document.getElementById("product-submit-error");
+  const successMessageEl = document.getElementById("product-submit-success");
+  const errorMessageEl = document.getElementById("product-submit-error");
+  successMessageEl.textContent = "";
+  errorMessageEl.textContent = "";
 
-    // Clear previous messages
-    successMessageEl.textContent = "";
-    errorMessageEl.textContent = "";
+  if (!name || !artistId || isNaN(priceUsd) || !category) {
+    errorMessageEl.textContent = "Product Name, Price (USD), Artist, and Category are required.";
+    return;
+  }
 
-    // Basic form validation
-    if (!name || !artistId || isNaN(priceUsd) || !category) {
-        errorMessageEl.textContent = "Product Name, Price (USD), Artist, and Category are required fields.";
-        return;
-    }
+  const addUpdateBtn = document.getElementById("add-product-btn");
+  addUpdateBtn.disabled = true;
 
-    const addUpdateBtn = document.getElementById("add-product-btn");
-    addUpdateBtn.disabled = true; // Disable button to prevent multiple submissions
+  try {
+    let originalUrl = editingProductImages.original || null;
+    let thumb200Url = editingProductImages.thumb200 || null;
+    let thumb400Url = editingProductImages.thumb400 || null;
 
-    try {
-        let originalImageUrl = editingProductImageUrl; // Start with existing image if editing
+    const safeName = name.replace(/\s+/g, "_").toLowerCase();
 
-        // Sanitize product name for image storage path
-        const safeName = name.replace(/\s+/g, "_").toLowerCase();
+    if (imageFile) {
+      // Delete old images if editing
+      if (editingProductId && editingProductImages.original) {
+        for (let key of ["original", "thumb200", "thumb400"]) {
+          if (editingProductImages[key]) {
+            try {
+              const url = new URL(editingProductImages[key]);
+              const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
+              await deleteObject(ref(storage, path));
+            } catch (e) {
+              console.warn("Could not delete old image:", e);
+            }
+          }
+        }
+      }
 
-        // Handle image upload if a new file is selected
-        if (imageFile) {
-            // If an old image exists and a new one is uploaded, delete the old one
-            if (editingProductImageUrl) {
-                try {
-                    // Extract path from Firebase Storage URL
-                    const url = new URL(editingProductImageUrl);
-                    const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
-                    await deleteObject(ref(storage, path));
-                    console.log("Old product image successfully deleted from storage.");
-                } catch (e) {
-                    console.warn("Could not delete old product image from storage. It might not exist or the URL is malformed.", e);
-                }
-            }
-            // Upload the new image to the 'originals' folder
-            const imageRef = ref(storage, `products/originals/${safeName}_${Date.now()}_${imageFile.name}`);
-            await uploadBytes(imageRef, imageFile);
-            originalImageUrl = await getDownloadURL(imageRef); // Get the original download URL
-        }
+      // Upload original
+      originalUrl = await uploadImage(imageFile, `products/originals/${safeName}_${Date.now()}_${imageFile.name}`);
 
-        // Prepare product data for Firestore
-        const productData = {
-            name,
-            description,
-            priceUsd,
-            priceZar: isNaN(priceZar) ? null : priceZar, // Store as null if not a valid number
-            quantity: isNaN(quantity) ? null : quantity, // Store as null if not a valid number
-            artistId,
-            category,
-            originalImage: originalImageUrl, // We will store the original URL temporarily
-            updatedAt: new Date(), // Always update 'updatedAt' timestamp
-        };
+      // Generate and upload thumbnails
+      const thumbs = await generateThumbnails(imageFile, THUMB_SIZES);
+      thumb200Url = await uploadImage(thumbs[200], `products/200x200/${safeName}_${Date.now()}_${imageFile.name}`);
+      thumb400Url = await uploadImage(thumbs[400], `products/400x400/${safeName}_${Date.now()}_${imageFile.name}`);
 
-        // Determine if we are adding a new product or updating an existing one
-        if (editingProductId) {
-            const docRef = doc(db, "products", editingProductId);
-            const snap = await getDoc(docRef);
-            if (!snap.exists()) {
-                errorMessageEl.textContent = "Product you are trying to edit no longer exists.";
-                return;
-            }
-            await updateDoc(docRef, productData); // Update existing document
-            successMessageEl.textContent = "Product updated successfully!";
-        } else {
-            productData.createdAt = new Date(); // Set 'createdAt' only for new products
-            await addDoc(collection(db, "products"), productData); // Add new document
-            successMessageEl.textContent = "Product added successfully!";
-        }
+      editingProductImages = { original: originalUrl, thumb200: thumb200Url, thumb400: thumb400Url };
+    }
 
-        // After successful operation, clear the form and reload the product list
-        clearProductForm();
-        await loadProducts();
+    const productData = {
+      name,
+      description,
+      priceUsd,
+      priceZar: isNaN(priceZar) ? null : priceZar,
+      quantity: isNaN(quantity) ? null : quantity,
+      artistId,
+      category,
+      originalImage: originalUrl,
+      thumbnail200: thumb200Url,
+      thumbnail400: thumb400Url,
+      updatedAt: new Date()
+    };
 
-    } catch (err) {
-        console.error("Product submission failed:", err);
-        errorMessageEl.textContent = `Failed to save product: ${err.message || "An unknown error occurred."}`;
-    } finally {
-        addUpdateBtn.disabled = false; // Re-enable the button
-    }
+    if (editingProductId) {
+      const docRef = doc(db, "products", editingProductId);
+      await updateDoc(docRef, productData);
+      successMessageEl.textContent = "Product updated successfully!";
+    } else {
+      productData.createdAt = new Date();
+      await addDoc(collection(db, "products"), productData);
+      successMessageEl.textContent = "Product added successfully!";
+    }
+
+    clearProductForm();
+    await loadProducts();
+
+  } catch (err) {
+    console.error("Product submission failed:", err);
+    errorMessageEl.textContent = `Failed to save product: ${err.message || "Unknown error"}`;
+  } finally {
+    addUpdateBtn.disabled = false;
+  }
 }
 
-/**
- * Loads and displays the list of products, optionally filtered by artist.
- * @param {string} artistFilterId - Optional ID of an artist to filter by.
- */
+// --- LOAD PRODUCTS ---
 export async function loadProducts(artistFilterId = "") {
-    const listElement = document.getElementById("products-list");
-    if (!listElement) return;
+  const listElement = document.getElementById("products-list");
+  if (!listElement) return;
+  listElement.innerHTML = "Loading products...";
 
-    listElement.innerHTML = "Loading products..."; // Show loading message
+  try {
+    let productsQueryRef = collection(db, "products");
+    let productsQuery = query(productsQueryRef, orderBy("createdAt", "desc"));
 
-    try {
-        let productsQueryRef = collection(db, "products");
-        let productsQuery = query(productsQueryRef, orderBy("createdAt", "desc"));
+    if (artistFilterId) {
+      productsQuery = query(productsQuery, where("artistId", "==", artistFilterId));
+    }
 
-        // Apply artist filter if specified
-        if (artistFilterId) {
-            productsQuery = query(productsQuery, where("artistId", "==", artistFilterId));
-        }
+    const snapshot = await getDocs(productsQuery);
+    if (snapshot.empty) {
+      listElement.innerHTML = "<p>No products found.</p>";
+      return;
+    }
 
-        const productSnapshot = await getDocs(productsQuery);
+    const artistsSnapshot = await getDocs(collection(db, "artists"));
+    const artistsMap = {};
+    artistsSnapshot.forEach(doc => artistsMap[doc.id] = doc.data().name || "Unnamed Artist");
 
-        if (productSnapshot.empty) {
-            listElement.innerHTML = "<p>No products found.</p>";
-            return;
-        }
+    const categoriesSnapshot = await getDocs(collection(db, "categories"));
+    const categoriesMap = new Map();
+    categoriesSnapshot.forEach(doc => {
+      const cat = doc.data();
+      categoriesMap.set(cat.slug, cat.displayName);
+    });
 
-        // Fetch all artists to map IDs to names for display
-        const artistsSnapshot = await getDocs(collection(db, "artists"));
-        const artistsMap = {};
-        artistsSnapshot.forEach(doc => {
-            artistsMap[doc.id] = doc.data().name || "Unnamed Artist";
-        });
+    let htmlContent = "<ul style='list-style:none;padding:0'>";
 
-        // Fetch all categories to map slugs to display names
-        const categoriesSnapshot = await getDocs(collection(db, "categories"));
-        const categoriesMap = new Map();
-        categoriesSnapshot.forEach(doc => {
-            const catData = doc.data();
-            categoriesMap.set(catData.slug, catData.displayName);
-        });
+    snapshot.forEach(docSnap => {
+      const product = docSnap.data();
+      const productId = docSnap.id;
+      const artistName = artistsMap[product.artistId] || "Unknown Artist";
+      const categoryDisplayName = categoriesMap.get(product.category) || product.category || "N/A";
 
-        let htmlContent = "<ul style='list-style:none;padding:0'>";
+      const displayImage = product.thumbnail200 || product.originalImage;
 
-        productSnapshot.forEach(docSnap => {
-            const product = docSnap.data();
-            const productId = docSnap.id;
+      htmlContent += `<li style="margin-bottom:20px;border:1px solid #eee;padding:10px;border-radius:5px;">
+        <strong>${product.name}</strong><br/>
+        Artist: ${artistName}<br/>
+        Price: $${typeof product.priceUsd === 'number' ? product.priceUsd.toFixed(2) : "N/A"}<br/>
+        Price (ZAR): R${typeof product.priceZar === 'number' ? product.priceZar.toFixed(2) : "N/A"}<br/>
+        Quantity: ${product.quantity || 0}<br/>
+        Category: ${categoryDisplayName}<br/>
+        ${displayImage ? `<div><strong>Image:</strong><br/><img src="${displayImage}" width="80" style="margin-top:5px;border-radius:3px;"></div>` : ""}
+        <div style="margin-top:10px;">
+          <button class="edit-product-btn" data-id="${productId}">Edit</button>
+          <button class="delete-product-btn" data-id="${productId}">Delete</button>
+        </div>
+      </li>`;
+    });
 
-            const artistName = artistsMap[product.artistId] || "Unknown Artist";
-            // Get display name for category, fallback to slug or "N/A"
-            const categoryDisplayName = categoriesMap.get(product.category) || product.category || "N/A";
+    htmlContent += "</ul>";
+    listElement.innerHTML = htmlContent;
 
-            htmlContent += `<li style="margin-bottom:20px; border: 1px solid #eee; padding: 10px; border-radius: 5px;">
-                <strong>${product.name}</strong><br/>
-                Artist: ${artistName}<br/>
-                Price: $${typeof product.priceUsd === 'number' ? product.priceUsd.toFixed(2) : "N/A"}<br/>
-                Price (ZAR): R${typeof product.priceZar === 'number' ? product.priceZar.toFixed(2) : "N/A"}<br/>
-                Quantity: ${product.quantity || 0}<br/>
-                Category: ${categoryDisplayName}<br/>
-                ${product.mainImage ? `<div><strong>Main Image:</strong><br/><img src="${product.mainImage}" width="80" style="margin-top: 5px; border-radius: 3px;"/></div>` : ""}
-                <div style="margin-top: 10px;">
-                    <button class="edit-product-btn" data-id="${productId}">Edit</button>
-                    <button class="delete-product-btn" data-id="${productId}">Delete</button>
-                </div>
-            </li>`;
-        });
+    document.querySelectorAll(".edit-product-btn").forEach(btn => {
+      btn.addEventListener("click", () => editProduct(btn.dataset.id));
+    });
+    document.querySelectorAll(".delete-product-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (confirm("Delete this product and all its images?")) deleteProduct(btn.dataset.id);
+      });
+    });
 
-        htmlContent += "</ul>";
-        listElement.innerHTML = htmlContent;
-
-        // Attach event listeners to Edit buttons
-        document.querySelectorAll(".edit-product-btn").forEach(btn => {
-            btn.addEventListener("click", () => editProduct(btn.dataset.id));
-        });
-
-        // Attach event listeners to Delete buttons
-        document.querySelectorAll(".delete-product-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                if (confirm("Are you sure you want to delete this product? This action cannot be undone and will also delete its image from storage.")) {
-                    deleteProduct(btn.dataset.id);
-                }
-            });
-        });
-
-    } catch (err) {
-        console.error("Failed to load products:", err);
-        listElement.innerHTML = "<p>Failed to load products.</p>";
-    }
+  } catch (err) {
+    console.error("Failed to load products:", err);
+    listElement.innerHTML = "<p>Failed to load products.</p>";
+  }
 }
 
-/**
- * Populates the product form with data of a selected product for editing.
- * @param {string} id - The ID of the product to edit.
- */
+// --- EDIT PRODUCT ---
 async function editProduct(id) {
-    const productDocRef = doc(db, "products", id);
-    const productDocSnap = await getDoc(productDocRef);
+  const productDocRef = doc(db, "products", id);
+  const snap = await getDoc(productDocRef);
+  if (!snap.exists()) {
+    document.getElementById("product-submit-error").textContent = "Product not found for editing.";
+    return;
+  }
 
-    if (!productDocSnap.exists()) {
-        document.getElementById("product-submit-error").textContent = "Product not found for editing.";
-        return;
-    }
+  const product = snap.data();
+  editingProductId = id;
+  editingProductImages = {
+    original: product.originalImage,
+    thumb200: product.thumbnail200,
+    thumb400: product.thumbnail400
+  };
 
-    const productData = productDocSnap.data();
-    editingProductId = id; // Set the global editing ID
-    editingProductImageUrl = productData.mainImage; // Store the current image URL
+  await populateCategoriesDropdown();
+  await populateArtistDropdownForProductForm();
 
-    // Ensure dropdowns are populated before setting their values
-    await populateCategoriesDropdown();
-    await populateArtistDropdownForProductForm();
+  document.getElementById("product-name").value = product.name || "";
+  document.getElementById("product-description").value = product.description || "";
+  document.getElementById("product-price-usd").value = product.priceUsd || "";
+  document.getElementById("product-price-zar").value = product.priceZar || "";
+  document.getElementById("product-stock").value = product.quantity || "";
+  document.getElementById("product-artist-id").value = product.artistId || "";
+  document.getElementById("product-category").value = product.category || "";
 
-    // Populate form fields with product data
-    document.getElementById("product-name").value = productData.name || "";
-    document.getElementById("product-description").value = productData.description || "";
-    document.getElementById("product-price-usd").value = productData.priceUsd || "";
-    document.getElementById("product-price-zar").value = productData.priceZar || "";
-    document.getElementById("product-stock").value = productData.quantity || "";
-    document.getElementById("product-artist-id").value = productData.artistId || ""; // Set selected artist
-    document.getElementById("product-category").value = productData.category || ""; // Set selected category
+  document.getElementById("product-form-title").textContent = "Edit Product";
+  document.getElementById("add-product-btn").textContent = "Update Product";
+  document.getElementById("add-product-btn").classList.add("update-mode");
+  document.getElementById("cancel-edit-product-btn").style.display = "inline-block";
 
-    // Update form title and button text/style
-    document.getElementById("product-form-title").textContent = "Edit Product";
-    document.getElementById("add-product-btn").textContent = "Update Product";
-    document.getElementById("add-product-btn").classList.add("update-mode");
-    document.getElementById("cancel-edit-product-btn").style.display = "inline-block";
+  document.getElementById("current-product-main-image").innerHTML = product.originalImage
+    ? `<img src="${product.originalImage}" width="80" style="margin-top:8px;border:1px solid #ccc;">`
+    : "<p>No main image.</p>";
 
-    // Display current main image preview
-    document.getElementById("current-product-main-image").innerHTML = productData.mainImage
-        ? `<img src="${productData.mainImage}" width="80" style="margin-top: 8px; border: 1px solid #ccc;">`
-        : "<p>No main image.</p>";
+  document.getElementById("product-submit-success").textContent = "";
+  document.getElementById("product-submit-error").textContent = "";
 
-    // Clear any previous submission messages
-    document.getElementById("product-submit-success").textContent = "";
-    document.getElementById("product-submit-error").textContent = "";
-
-    // Scroll to the top of the page for easy editing
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * Deletes a product from Firestore and its associated image from Storage.
- * @param {string} id - The ID of the product to delete.
- */
+// --- DELETE PRODUCT ---
 async function deleteProduct(id) {
-    try {
-        const productDocRef = doc(db, "products", id);
-        const productDocSnap = await getDoc(productDocRef);
-        const productData = productDocSnap.data();
+  try {
+    const productDocRef = doc(db, "products", id);
+    const snap = await getDoc(productDocRef);
+    const product = snap.data();
 
-        // If a main image exists, attempt to delete it from Firebase Storage
-        if (productData && productData.mainImage) {
-            try {
-                const url = new URL(productData.mainImage);
-                const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
-                await deleteObject(ref(storage, path));
-                console.log("Product image successfully deleted from storage.");
-            } catch (e) {
-                console.warn("Could not delete product image from storage (it might not exist or the URL is malformed):", e);
-            }
-        }
+    if (product) {
+      for (let key of ["originalImage", "thumbnail200", "thumbnail400"]) {
+        if (product[key]) {
+          try {
+            const url = new URL(product[key]);
+            const path = decodeURIComponent(url.pathname.split('/o/')[1]).split('?')[0];
+            await deleteObject(ref(storage, path));
+          } catch (e) {
+            console.warn("Could not delete image:", e);
+          }
+        }
+      }
+    }
 
-        // Delete the product document from Firestore
-        await deleteDoc(productDocRef);
-        document.getElementById("product-submit-success").textContent = "Product deleted successfully!";
-        await loadProducts(); // Reload the product list after deletion
+    await deleteDoc(productDocRef);
+    document.getElementById("product-submit-success").textContent = "Product deleted successfully!";
+    await loadProducts();
 
-    } catch (err) {
-        console.error("Failed to delete product:", err);
-        document.getElementById("product-submit-error").textContent = "Failed to delete product.";
-    }
+  } catch (err) {
+    console.error("Failed to delete product:", err);
+    document.getElementById("product-submit-error").textContent = "Failed to delete product.";
+  }
 }
 
-/**
- * Populates the "Filter by Artist" dropdown for filtering the product list.
- */
+// --- DROPDOWNS ---
 export async function populateArtistFilter() {
-    const selectElement = document.getElementById("artist-filter");
-    if (!selectElement) return;
+  const select = document.getElementById("artist-filter");
+  if (!select) return;
 
-    // Clear existing options, but keep the default "All Artists"
-    const currentValue = selectElement.value; // Store current value to restore after repopulating
-    selectElement.innerHTML = '<option value="">All Artists</option>';
+  const current = select.value;
+  select.innerHTML = '<option value="">All Artists</option>';
 
-    try {
-        const artistsSnapshot = await getDocs(collection(db, "artists"));
-        artistsSnapshot.forEach(doc => {
-            const artist = doc.data();
-            const option = document.createElement("option");
-            option.value = doc.id; // Store artist ID as option value
-            option.textContent = artist.name || "Unnamed Artist"; // Display artist name
-            selectElement.appendChild(option);
-        });
-
-        // Restore the previously selected value, or ensure "All Artists" is selected if no match
-        selectElement.value = currentValue || "";
-
-    } catch (err) {
-        console.error("Failed to populate artist filter dropdown:", err);
-    }
+  try {
+    const artists = await getDocs(collection(db, "artists"));
+    artists.forEach(doc => {
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = doc.data().name || "Unnamed Artist";
+      select.appendChild(option);
+    });
+    select.value = current || "";
+  } catch (e) {
+    console.error("Failed to populate artist filter:", e);
+  }
 }
 
-/**
- * Populates the "Artist" dropdown within the product add/edit form.
- */
 async function populateArtistDropdownForProductForm() {
-    const selectElement = document.getElementById("product-artist-id");
-    if (!selectElement) return;
+  const select = document.getElementById("product-artist-id");
+  if (!select) return;
 
-    // Store current value to re-select if repopulating during an edit
-    const currentValue = selectElement.value;
+  const current = select.value;
+  select.innerHTML = '<option value="">-- Select an Artist --</option>';
 
-    // Clear existing options, keeping the default
-    selectElement.innerHTML = '<option value="">-- Select an Artist --</option>';
-
-    try {
-        const artistsSnapshot = await getDocs(collection(db, "artists"));
-        artistsSnapshot.forEach(doc => {
-            const artist = doc.data();
-            const option = document.createElement("option");
-            option.value = doc.id;
-            option.textContent = artist.name || "Unnamed Artist";
-            selectElement.appendChild(option);
-        });
-
-        // Restore the previously selected value
-        selectElement.value = currentValue;
-
-    } catch (err) {
-        console.error("Failed to populate artist dropdown for product form:", err);
-    }
+  try {
+    const artists = await getDocs(collection(db, "artists"));
+    artists.forEach(doc => {
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = doc.data().name || "Unnamed Artist";
+      select.appendChild(option);
+    });
+    select.value = current;
+  } catch (e) {
+    console.error("Failed to populate artist dropdown:", e);
+  }
 }
 
-/**
- * Populates the "Category" dropdown in the product add/edit form from Firestore.
- */
 export async function populateCategoriesDropdown() {
-    const selectElement = document.getElementById("product-category");
-    if (!selectElement) return;
+  const select = document.getElementById("product-category");
+  if (!select) return;
+  const current = select.value;
+  select.innerHTML = '<option value="">-- Select Category --</option>';
 
-    // Store current value to re-select if repopulating during an edit
-    const currentValue = selectElement.value;
+  try {
+    const snapshot = await getDocs(query(collection(db, "categories"), orderBy("displayName")));
+    if (snapshot.empty) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "No categories available";
+      option.disabled = true;
+      select.appendChild(option);
+      return;
+    }
 
-    // Clear existing options, keeping the default
-    selectElement.innerHTML = '<option value="">-- Select Category --</option>';
+    snapshot.forEach(doc => {
+      const cat = doc.data();
+      const option = document.createElement("option");
+      option.value = cat.slug || doc.id;
+      option.textContent = cat.displayName || cat.slug || "Unnamed Category";
+      select.appendChild(option);
+    });
 
-    try {
-        const categoriesCollectionRef = collection(db, "categories");
-        const q = query(categoriesCollectionRef, orderBy("displayName")); // Order by displayName for consistency
+    select.value = current;
 
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-            console.warn("No categories found in Firestore for dropdown.");
-            const option = document.createElement("option");
-            option.value = "";
-            option.textContent = "No categories available";
-            option.disabled = true;
-            selectElement.appendChild(option);
-            return;
-        }
-
-        snapshot.forEach(docSnap => {
-            const categoryData = docSnap.data();
-            const option = document.createElement("option");
-            option.value = categoryData.slug || docSnap.id; // Use slug as value, fallback to document ID
-            option.textContent = categoryData.displayName || categoryData.slug || "Unnamed Category"; // Display name, fallback to slug
-            selectElement.appendChild(option);
-        });
-
-        // Restore the previously selected value
-        selectElement.value = currentValue;
-
-    } catch (err) {
-        console.error("Failed to populate categories dropdown from Firestore:", err);
-        document.getElementById("product-submit-error").textContent = "Failed to load categories for form.";
-    }
+  } catch (e) {
+    console.error("Failed to populate categories dropdown:", e);
+    document.getElementById("product-submit-error").textContent = "Failed to load categories.";
+  }
 }
 
-// Ensure form setup and initial data loading happens once the DOM is fully loaded.
+// --- INITIAL LOAD ---
 document.addEventListener('DOMContentLoaded', () => {
-    setupProductForm();
-    loadProducts(); // Initial load of all products
+  setupProductForm();
+  loadProducts();
 });
