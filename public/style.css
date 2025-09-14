@@ -104,7 +104,8 @@ a {
 }
 
 .btn-branding:hover {
-    background-color: var(--color-main);
+    background-color: var(--highlight-color);
+    color: white;
     transform: translateY(-2px);
 }
 
@@ -266,6 +267,7 @@ a {
 .art-classes-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    position: relative;
     border: 2px solid #3BC5D7;
     border-radius: 20px;
     max-width: 1000px;
@@ -303,6 +305,18 @@ a {
 
 .art-classes-details {
     padding: 20px;
+    text-align: left;
+    max-width: 90%;
+}
+
+.character-image {
+    position: absolute;
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+    bottom: -59px;
+    right: -130px;
+    transform: scaleX(-1);
 }
 
 .classes-map-and-button-small {
@@ -311,13 +325,14 @@ a {
 
 .where-and-when-heading {
     font-weight: 500;
+    align-self: flex-start;
+    margin-bottom: 30px;
 
 }
 
 .book-now-btn {
     margin-top: 10px;
-    background-color: var(--highlight-color);
-    color: var(--color-darkest);
+    align-self: flex-start;
 }
 
 .join-the-community-container {
@@ -352,6 +367,17 @@ a {
 
 .join-us-left {
     background-color: transparent;
+    position: relative;
+}
+
+.character-on-map {
+    position: absolute;
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+    bottom: -40px;
+    left: -60px;
+    z-index: 10;
 }
 
 .join-us-right {
@@ -1754,8 +1780,6 @@ body.artist-details main {
 
     .book-now-btn-small {
         margin-top: 10px;
-        background-color: var(--highlight-color);
-        color: var(--color-darkest);
         font-weight: 600;
         border: none;
         padding: 16px 32px;
@@ -1766,10 +1790,12 @@ body.artist-details main {
         transition: background-color 0.3s ease, transform 0.3s ease;
     }
 
-    .book-now-btn-small:hover {
-        background-color: var(--color-dark);
-        color: white;
-        transform: translateY(-2px);
+    .where-and-when-heading {
+        align-self: center;
+    }
+
+    .character-image {
+        display: none;
     }
 }
 
